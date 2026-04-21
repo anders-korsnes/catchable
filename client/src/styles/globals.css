@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-bg text-ink antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Tap highlight removed — the swipe card has its own press affordance. */
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Crisp pixel art for Pokémon sprites scaled up. */
+  .pixelated {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+  }
+}
+
+@layer components {
+  .pixel-text {
+    font-family: theme('fontFamily.Bungee');
+    letter-spacing: 0.02em;
+    /* Pixel fonts must NOT be scaled fractionally — locked sizes preserve crispness. */
+  }
+
+  .focus-ring {
+    @apply outline-none ring-offset-2 ring-offset-bg focus-visible:ring-2 focus-visible:ring-action;
+  }
+
+  .device-shell {
+    background: linear-gradient(180deg, #ef4444 0%, #dc2626 30%, #b91c1c 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

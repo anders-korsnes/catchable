@@ -1,0 +1,19 @@
+import { z } from 'zod';
+
+// Mirrors the server-side schema; keeping the same rules here means users get
+// instant feedback before we round-trip to the API. Server is still the source
+// of truth (it re-validates).
+export const credentialsSchema = z.object({
+  username: z
+    .string()
+    .trim()
+    .min(3, 'Username must be at least 3 characters')
+    .max(32, 'Username must be 32 characters or fewer')
+    .regex(/^[a-zA-Z0-9_-]+$/, 'Letters, numbers, _ and - only'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(128, 'Password is too long'),
+});
+
+export type Credentials = z.infer<typeof credentialsSchema>;

@@ -1,0 +1,73 @@
+// Pokémon Tinder — data model.
+// SQLite is used for zero-install portability. Tables stay snake_case via @@map.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  preferences  UserPreference?
+  choices      PokemonChoice[]
+  achievements UserAchievement[]
+
+  @@map("users")
+}
+
+model UserPreference {
+  userId String @id @map("user_id")
+  // SQLite has no native JSON column — list-valued prefs are stored as
+  // comma-separated strings and round-tripped through encode/decode helpers
+  // so callers see string[]. `difficulties` is a subset of
+  // 'easy' | 'medium' | 'hard' | 'legendary'; empty string means "all".
+  regions      String
+  types        String
+  difficulties String @default("")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
+
+model PokemonChoice {
+  id        Int      @id @default(autoincrement())
+  userId    String   @map("user_id")
+  pokemonId Int      @map("pokemon_id")
+  // 'like' | 'dislike' | 'fled' — validated at the application layer.
+  // 'fled' is recorded when the catch minigame is missed and is treated
+  // as a *temporary* exclusion (5-minute cooldown) by the deck loader.
+  choice    String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, pokemonId])
+  @@index([userId, choice])
+  @@map("pokemon_choices")
+}
+
+// Per-user achievement unlocks. Achievement *definitions* live in code
+// (server/src/lib/achievements/catalog.ts) so we can iterate on them without
+// migrations; this table just records "which achievement IDs are unlocked,
+// and when".
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String   @map("user_id")
+  achievementId String   @map("achievement_id")
+  unlockedAt    DateTime @default(now()) @map("unlocked_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@map("user_achievements")
+}

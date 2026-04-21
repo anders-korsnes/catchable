@@ -1,0 +1,29 @@
+{
+  "name": "pokemon-tinder",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A Tinder-style web app for swiping on Pokémon — paired with random human names and Chuck Norris jokes.",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,client -c blue,magenta \"npm:dev --workspace server\" \"npm:dev --workspace client\"",
+    "build": "npm run build --workspace server && npm run build --workspace client",
+    "start": "npm run start --workspace server",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md,css}\"",
+    "db:setup": "npm run db:setup --workspace server",
+    "db:reset": "npm run db:reset --workspace server",
+    "postinstall": "npm run db:setup --workspace server --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1",
+    "prettier": "^3.3.3"
+  }
+}
