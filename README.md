@@ -1,6 +1,6 @@
 # Pokémon Tinder
 
-A Tinder-style web app where you swipe on Pokémon. Each Pokémon gets a random human name and a Chuck Norris joke matched to its type, revealed when you catch it. React + Vite frontend, Express + Prisma + SQLite backend, all TypeScript.
+A Tinder-style web app where you swipe and catch Pokémons. Each Pokémon gets a random human name and a Chuck Norris joke matched to its type, revealed when you catch it. React + Vite frontend, Express + Prisma + SQLite backend, all TypeScript.
 
 ---
 
@@ -57,7 +57,7 @@ This starts both the frontend (Vite on port 5173) and the backend (Express on po
 
 5. **Create an account and use it**
 
-Register from the login page, pick your region and types in Settings, and start swiping. There's no seed data — the app pulls Pokémon from [PokéAPI](https://pokeapi.co/) and jokes from [api.chucknorris.io](https://api.chucknorris.io/) on the fly.
+Register from the login page, pick your region and types in Settings, and start catching. There's no seed data — the app pulls Pokémon from [PokéAPI](https://pokeapi.co/) and jokes from [api.chucknorris.io](https://api.chucknorris.io/) on the fly.
 
 ---
 
@@ -129,9 +129,10 @@ PokemonTinder/
 
 - **Auth** — Register with username + password. Passwords are bcrypt-hashed. Sessions use a JWT in an httpOnly cookie, so the token never touches client-side JavaScript.
 - **Preferences** — Users pick a region and one or more Pokémon types (pulled from PokéAPI). Stored per user.
-- **Deck** — The server gets the candidate Pokémon for the user's region + types, filters out anything already liked or disliked, and returns the next card. Disliked Pokémon don't come back.
+- **Deck** — The server gets the candidate Pokémon for the user's region + types, filters out anything already caught, and returns the next card.
 - **Jokes** — Pokémon types are mapped to Chuck Norris joke categories. If the mapped category fails, it falls back to a random joke, then to a hardcoded placeholder. A card always has a joke.
-- **Liked view** — Shows all caught Pokémon. Removing one puts it back in the deck.
+- **Pokedex** — Shows all caught Pokémon. Removing one puts it back in the deck.
+- **Settings** — Users can at any time change their prefered regions, types, and even difficulty.
 
 ### External APIs
 
@@ -150,7 +151,7 @@ What's covered:
 
 - **Joke matcher** — type-to-category mapping, multi-type ordering, fallback behavior
 - **Auth helpers** — bcrypt hashing round-trip, JWT sign/verify, tampered token rejection
-- **Deck filtering** — liked/disliked exclusion, candidate ordering, remaining count
+- **Deck filtering** — candidate ordering, remaining count, filtering out caught Pokemons
 - **Preferences encoding** — string array to/from the comma-separated format SQLite stores
 
 ```
@@ -190,4 +191,5 @@ npm run db:reset
 ```
 
 This wipes the SQLite database and re-runs all migrations.
+
 # catchable
