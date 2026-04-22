@@ -24,7 +24,7 @@ cd PokemonTinder
 
 2. **Create the environment file**
 
-Copy `.env.example` to `.env` in the repo root:
+Copy `.env.example` to `.env` in the server folder:
 
 ```
 # macOS / Linux
@@ -114,11 +114,11 @@ PokemonTinder/
 │   │   ├── middleware/      # auth check, error handler
 │   │   ├── lib/             # env config, prisma, auth helpers, deck filter
 │   │   └── config/          # type-to-joke-category mapping
-│   └── prisma/
-│       ├── schema.prisma
-│       └── migrations/
+|   ├── prisma/
+│   |   ├── schema.prisma
+│   |   └── migrations/
+│   └── .env.example
 │
-├── .env.example
 ├── .nvmrc
 └── package.json             # Root workspace config
 ```
@@ -170,7 +170,7 @@ npm run test:watch --workspace server
 ## Troubleshooting
 
 **"Invalid environment configuration" on startup**
-You're missing `.env` or a required value in it. Copy `.env.example` to `.env` and make sure `JWT_SECRET` is at least 16 characters.
+You're missing `.env` or a required value in it. Copy `.env.example` to `.env` in the server folder and make sure `JWT_SECRET` is at least 16 characters.
 
 **"Environment variable not found: DATABASE_URL" when running db:setup**
 This happens if you run Prisma directly instead of through the npm script. Use `npm run db:setup` from the repo root — it handles the path correctly.
