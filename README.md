@@ -1,4 +1,4 @@
-# Pokémon Tinder
+# Catchable
 
 A Tinder-style web app where you swipe and catch Pokémons. Each Pokémon gets a random human name and a Chuck Norris joke matched to its type, revealed when you catch it. React + Vite frontend, Express + Prisma + SQLite backend, all TypeScript.
 

@@ -14,7 +14,7 @@ export function ProtectedRoute() {
   }
 
   if (!user) {
-    // Preserve where they wanted to go so we can bounce back after login.
+    // Preserve the target path so the login page can redirect back after auth.
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 

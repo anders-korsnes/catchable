@@ -55,7 +55,7 @@ async function getCategories(): Promise<string[]> {
   const cached = await getCached(
     'chuck:categories',
     async () => (await fetchJson('/jokes/categories', categoriesSchema)) ?? [],
-    1000 * 60 * 60, // 1h — categories change very rarely but we don't want them stuck forever
+    1000 * 60 * 60, // 1h — categories rarely change, short TTL prevents stale data
   );
   return cached;
 }

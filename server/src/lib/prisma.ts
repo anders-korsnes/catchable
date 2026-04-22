@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
-// A single shared client. tsx --watch reloads the module, so we cache on globalThis
-// to avoid spawning a new connection on every reload.
+// Single shared Prisma client. Cached on globalThis so hot-module reloads
+// don't spawn a new database connection on every file change.
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
 export const prisma = globalForPrisma.prisma ?? new PrismaClient();

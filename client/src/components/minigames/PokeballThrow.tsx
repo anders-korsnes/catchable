@@ -7,7 +7,6 @@
 interface ThrowButtonProps {
   onClick: () => void;
   disabled?: boolean;
-  /** Tiny hint shown under the button, e.g. "SPACE". */
   hint?: string;
   ariaLabel?: string;
 }
@@ -52,7 +51,12 @@ function PokeballArt() {
         </radialGradient>
       </defs>
       <circle cx="32" cy="32" r="29" fill="url(#thr-bot)" stroke="#0F172A" strokeWidth="2.4" />
-      <path d="M3 32 A29 29 0 0 1 61 32 Z" fill="url(#thr-top)" stroke="#0F172A" strokeWidth="2.4" />
+      <path
+        d="M3 32 A29 29 0 0 1 61 32 Z"
+        fill="url(#thr-top)"
+        stroke="#0F172A"
+        strokeWidth="2.4"
+      />
       <line x1="3" y1="32" x2="24" y2="32" stroke="#0F172A" strokeWidth="2.4" />
       <line x1="40" y1="32" x2="61" y2="32" stroke="#0F172A" strokeWidth="2.4" />
       <circle cx="32" cy="32" r="7" fill="#F1F5F9" stroke="#0F172A" strokeWidth="2.4" />

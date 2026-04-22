@@ -5,8 +5,8 @@ import { upstream } from '../lib/errors.js';
 const POKEAPI_BASE = 'https://pokeapi.co/api/v2';
 
 // --- Schemas -----------------------------------------------------------------
-// Only validate the fields we actually use, keep schemas .passthrough() so PokéAPI
-// can add fields without breaking us.
+// Only the fields the app uses are validated. Schemas use .passthrough() so
+// PokéAPI can add fields without breaking anything.
 
 const namedRefSchema = z.object({ name: z.string(), url: z.string().url() });
 
@@ -134,9 +134,7 @@ export async function getRawPokemonData(idOrName: number | string): Promise<unkn
 // --- Region & type lists ----------------------------------------------------
 
 export async function listRegions(): Promise<NamedRef[]> {
-  const data = await getCached('regions', () =>
-    fetchJson('/region?limit=100', regionListSchema),
-  );
+  const data = await getCached('regions', () => fetchJson('/region?limit=100', regionListSchema));
   const allNames = data.results.map((r) => r.name);
 
   // Filter out regions that have no Pokémon in PokéAPI (e.g. "orre"). We call
@@ -173,8 +171,8 @@ interface SpeciesIndexEntry {
   baseExperience: number | null;
 }
 
-// Fetching every species in a region with type info is costly, so we build an
-// index on first use: region -> [{id, name, types}]. Cached for the process lifetime.
+// Fetching every species in a region is costly, so an index is built on first
+// use: region → [{id, name, types}]. Cached for the process lifetime.
 async function loadRegionSpecies(region: string): Promise<SpeciesIndexEntry[]> {
   return getCached(`region:${region}:species`, async () => {
     const detail = await fetchJson(`/region/${region}`, regionDetailSchema);

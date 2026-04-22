@@ -1,4 +1,4 @@
-// Pokémon Tinder — data model.
+// Catchable — data model.
 // SQLite is used for zero-install portability. Tables stay snake_case via @@map.
 
 generator client {

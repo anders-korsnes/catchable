@@ -39,9 +39,8 @@ export const MAX_ARC = TIERS[0].arc;
 export const MIN_ARC = TIERS[TIERS.length - 1].arc;
 
 function getTierByExperience(baseExperience: number | null | undefined): Tier {
-  // Unknown experience → treat as easy. PokéAPI is reliable enough that this
-  // is rare; defaulting to easy keeps the player from getting blindsided by
-  // a Legendary arc on a Pokémon we couldn't profile.
+  // Unknown experience defaults to easy rather than legendary, so a missing
+  // value never produces an unexpectedly punishing catch window.
   const exp = baseExperience ?? 0;
   let chosen: Tier = TIERS[0];
   for (const t of TIERS) {

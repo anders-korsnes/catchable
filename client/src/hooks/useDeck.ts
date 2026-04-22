@@ -73,7 +73,7 @@ export function useDeck({ enabled = true, onAchievementsUnlocked }: UseDeckOptio
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- state.current is read
-    // through a closure; we only want decide() to re-create when its handlers change.
+    // through a closure; decide() should only re-create when its handlers change.
     [state.current?.pokemon?.id, queryClient, loadNext, onAchievementsUnlocked],
   );
 

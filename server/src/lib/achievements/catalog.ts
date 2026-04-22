@@ -1,17 +1,12 @@
-/**
- * Achievement catalog.
- *
- * Definitions live in code (not the database) so we can iterate on the list
- * without migrations. The `user_achievements` table just records which IDs a
- * user has unlocked.
- *
- * IDs are stable strings — changing one will "lose" any existing unlocks.
- *
- *   - **Static** achievements have a fixed id known at build time.
- *   - **Dynamic** achievements are generated per region/type at request time
- *     (e.g. `region-complete:kanto`). Their definitions are produced by
- *     `dynamicAchievementsFor()` from PokéAPI's region/type lists.
- */
+// Achievement definitions live in code rather than the database so the list
+// can change without schema migrations. The `user_achievements` table only
+// stores which IDs a given user has unlocked.
+//
+// IDs are stable strings — renaming one drops all existing unlocks for it.
+//
+//   Static   — fixed id known at build time.
+//   Dynamic  — generated per region/type at request time, e.g. `region-complete:kanto`.
+//              Produced by `dynamicAchievementsFor()` from PokéAPI's region/type lists.
 
 export type AchievementCategory =
   | 'progression'

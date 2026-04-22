@@ -2,7 +2,7 @@
   "name": "pokemon-tinder",
   "version": "1.0.0",
   "private": true,
-  "description": "A Tinder-style web app for swiping on Pokémon — paired with random human names and Chuck Norris jokes.",
+  "description": "A Tinder-style web app for catching Pokémons — paired with random human names and Chuck Norris jokes.",
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=10.0.0"

@@ -85,9 +85,8 @@ function AuthedSettings() {
   const [saved, setSaved] = useState(false);
 
   // Re-sync local state whenever the query delivers a new data reference
-  // (initial load, or a refetch after we saved). This is safer than a
-  // one-shot "hydrated" flag: if the user leaves and returns before the
-  // cache refresh lands, the next reference change will pull them even.
+  // (initial load or refetch after a save). Reacting to the reference is safer
+  // than a one-shot hydration flag — it handles late cache refreshes too.
   const lastSyncedRef = useRef<typeof prefsQuery.data | null>(null);
   useEffect(() => {
     if (!prefsQuery.data) return;

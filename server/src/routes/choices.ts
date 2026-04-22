@@ -29,21 +29,15 @@ const choiceSchema = z.object({
   choice: z.enum(['like', 'dislike', 'fled']),
 });
 
-/**
- * Records a swipe / catch result and returns any achievements that were
- * newly unlocked as a side-effect.
- *
- * The same endpoint handles all three choice types; achievement evaluation
- * branches off `choice`.
- */
+// POST / — records a swipe result and returns any newly unlocked achievements.
+// Handles all three choice types: 'like', 'dislike', 'fled'.
 choicesRouter.post(
   '/',
   asyncHandler(async (req, res) => {
     const userId = req.user!.id;
     const { pokemonId, choice } = choiceSchema.parse(req.body);
 
-    // Capture the previous record (if any) BEFORE upserting so we can detect
-    // the comeback case (fled → caught) for achievements.
+    // Read the previous record before upserting to detect the fled → caught case.
     const previous = await prisma.pokemonChoice.findUnique({
       where: { userId_pokemonId: { userId, pokemonId } },
     });
@@ -67,8 +61,7 @@ choicesRouter.post(
       try {
         summary = await getPokemonSummary(pokemonId);
       } catch {
-        // PokéAPI hiccup — still record the catch but skip difficulty
-        // evaluation if we can't read base experience.
+        // PokéAPI unavailable — catch is still recorded, difficulty evaluation skipped.
       }
       newlyUnlocked = await evaluateOnCatch(userId, {
         pokemonId,
@@ -180,8 +173,7 @@ choicesRouter.delete(
  */
 function hydrateAchievements(ids: string[]): UnlockedAchievement[] {
   if (ids.length === 0) return [];
-  // Build a quick lookup of every static def + every dynamic def we can
-  // reconstruct from the id alone.
+  // Build a lookup of static defs and dynamic defs reconstructed from the id.
   const byId = new Map<string, AchievementDef>();
   for (const def of STATIC_ACHIEVEMENTS) byId.set(def.id, def);
 

@@ -52,7 +52,7 @@ authRouter.post(
 authRouter.post(
   '/login',
   asyncHandler(async (req, res) => {
-    // Use a permissive parse here — we don't want to leak which field was wrong.
+    // Permissive parse — avoids leaking which field was invalid.
     const parsed = credentialsSchema.safeParse(req.body);
     if (!parsed.success) {
       throw badRequest('INVALID_CREDENTIALS', 'Invalid username or password');
@@ -60,8 +60,7 @@ authRouter.post(
     const { username, password } = parsed.data;
 
     const user = await prisma.user.findUnique({ where: { username } });
-    // Constant-ish error path — same response whether user exists or password is wrong,
-    // so we don't leak which usernames are registered.
+    // Same error for wrong username and wrong password — avoids leaking which usernames exist.
     if (!user || !(await verifyPassword(password, user.passwordHash))) {
       throw unauthorized('INVALID_CREDENTIALS', 'Invalid username or password');
     }

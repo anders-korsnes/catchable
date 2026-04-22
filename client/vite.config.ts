@@ -10,8 +10,8 @@ export default defineConfig({
     port: 5173,
     // Refuse to silently bump to 5174/5175/etc. when 5173 is busy: a port
     // mismatch breaks HMR (the browser keeps trying to WebSocket back to 5173
-    // even though the page was actually served from 5174) and is *very*
-    // confusing to debug. Better to crash up-front so we know to free 5173.
+    // even though the page was actually served from 5174). Crashing up-front
+    // makes the port conflict visible immediately.
     strictPort: true,
     proxy: {
       '/api': {

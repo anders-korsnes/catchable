@@ -1,6 +1,6 @@
-// SQLite has no JSON column type via Prisma's SQLite provider, so we serialize
-// list-valued preference fields (regions, types) as comma-separated strings.
-// Centralized here so the encoding is consistent across routes.
+// SQLite has no JSON column type via Prisma's SQLite provider, so list-valued
+// preference fields (regions, types) are stored as comma-separated strings.
+// Encoding/decoding is centralized here to keep it consistent across routes.
 
 function encodeList(values: string[]): string {
   return Array.from(

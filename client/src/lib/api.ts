@@ -1,5 +1,5 @@
-// Thin wrapper around fetch. All app code goes through this so error shape is
-// consistent and credentials are always sent (we use cookie auth).
+// Thin wrapper around fetch. All requests go through here for a consistent
+// error shape and to ensure credentials (cookie auth) are always included.
 
 export interface ApiErrorBody {
   error: { code: string; message: string; details?: unknown };

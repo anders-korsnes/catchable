@@ -28,10 +28,8 @@ export interface FleeEvalContext {
   preference: { regions: string[]; types: string[] };
 }
 
-/**
- * Returns the set of achievement IDs that the user has *already* unlocked.
- * Centralised so callers don't accidentally award the same one twice.
- */
+// Returns the achievement IDs already unlocked by the user.
+// Centralised to prevent duplicate awards across callers.
 async function loadUnlocked(userId: string): Promise<Set<string>> {
   const rows = await prisma.userAchievement.findMany({
     where: { userId },

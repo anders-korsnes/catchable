@@ -1,7 +1,7 @@
-// Map Pokémon types to the closest matching Chuck Norris joke category.
-// Chuck Norris API exposes a fixed set of categories; we pick the most thematically
-// adjacent one per type. Multiple Pokémon types collapse to the same category — that's
-// fine, the joke pool is small. Update this table if Chuck Norris API adds categories.
+// Maps Pokémon types to the closest matching Chuck Norris joke category.
+// Chuck Norris API has a fixed set of categories; the most thematically adjacent
+// one is used per type. Multiple types may collapse to the same category.
+// Update this table if the Chuck Norris API adds new categories.
 //
 // Available Chuck Norris categories (as of writing):
 //   animal, career, celebrity, dev, explicit, fashion, food, history,
