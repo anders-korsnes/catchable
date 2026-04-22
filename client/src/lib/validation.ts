@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-// Mirrors the server-side schema for instant client-side feedback.
-// The server re-validates — it remains the source of truth.
+// Mirrors the server schema for client-side feedback. Server re-validates.
 export const credentialsSchema = z.object({
   username: z
     .string()

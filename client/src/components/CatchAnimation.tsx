@@ -15,16 +15,8 @@ interface Snapshot {
 }
 
 /**
- * Catch sequence (≈2.0s):
- *
- *   1. Half-open Poké Ball drops in at the center of the modal.
- *   2. Top half hinges shut with a flash + sparkles.
- *   3. Three-beat wobble.
- *   4. Ball drops straight down into the Pokédex tab and shrinks out.
- *
- * The ball uses absolute fixed positioning anchored to the modal's
- * bounding rect, so the choreography stays put even if the page scrolls.
- * Respects `prefers-reduced-motion` via the global CSS rule.
+ * Catch sequence (~2s): drop, close with flash, wobble, fall into Pokédex tab.
+ * Fixed-positioned against the modal rect. Respects prefers-reduced-motion via global CSS.
  */
 export function CatchAnimation({
   show,
@@ -66,7 +58,7 @@ export function CatchAnimation({
 
 const BALL_SIZE = 96;
 
-// Animation timeline (seconds). Adjust these to retime the sequence.
+// Timeline durations in seconds.
 const T = {
   drop: 0.4,
   close: 0.28,
@@ -81,8 +73,7 @@ const ms = (...parts: number[]) =>
 function Choreography({ snap }: { snap: Snapshot }) {
   const { tabRect, modalRect } = snap;
 
-  // Anchor: horizontal center of the modal, vertically a third of the way
-  // down so the ball reads as occupying the card area.
+  // Anchor at modal horizontal center, one-third down.
   const centerX = modalRect.left + modalRect.width / 2 - BALL_SIZE / 2;
   const centerY = modalRect.top + modalRect.height * 0.34 - BALL_SIZE / 2;
 
@@ -94,9 +85,7 @@ function Choreography({ snap }: { snap: Snapshot }) {
   const closed = ms(T.drop, T.close);
   const wobbleEnd = ms(T.drop, T.close, T.wobble);
 
-  // Master position track. The ball stays at center through close + wobble,
-  // then falls straight down (with a tiny x adjustment if the tab isn't
-  // perfectly centered in the modal).
+  // Hold at center through close + wobble, then fall to the tab.
   const times = [0, dropped, closed, wobbleEnd, 1];
 
   return (
@@ -118,9 +107,7 @@ function Choreography({ snap }: { snap: Snapshot }) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Pokéball composed of independently animated parts.
-// ---------------------------------------------------------------------------
+// Pokéball assembled from independently animated parts.
 
 function Ball() {
   const dropped = ms(T.drop);
@@ -129,12 +116,12 @@ function Ball() {
 
   return (
     <div className="relative" style={{ width: BALL_SIZE, height: BALL_SIZE }}>
-      {/* Bottom (white) half — always visible. */}
+      {/* Bottom (white) half. */}
       <div className="absolute inset-0 drop-shadow-[0_3px_2px_rgba(0,0,0,0.25)]">
         <BallBottom />
       </div>
 
-      {/* Top (red) half: rotates from a "lid open" position onto the bottom. */}
+      {/* Top (red) half: rotates from open onto the bottom. */}
       <motion.div
         className="absolute left-0 top-0 origin-bottom drop-shadow-[0_-1px_2px_rgba(0,0,0,0.2)]"
         style={{ width: BALL_SIZE, height: BALL_SIZE / 2 }}
@@ -152,7 +139,7 @@ function Ball() {
         <BallTop />
       </motion.div>
 
-      {/* Flash ring at the moment the ball closes. */}
+      {/* Flash ring on close. */}
       <motion.div
         aria-hidden
         className="pointer-events-none absolute inset-0 rounded-full"
@@ -212,12 +199,12 @@ function Ball() {
         <Sparkles />
       </motion.div>
 
-      {/* Click seam + center button — sits on top of everything. */}
+      {/* Seam + center button overlay. */}
       <div className="pointer-events-none absolute inset-0">
         <BallSeam />
       </div>
 
-      {/* Trail glow during the drop to the tab. */}
+      {/* Trail glow during the fall. */}
       <motion.div
         aria-hidden
         className="pointer-events-none absolute inset-0 rounded-full"
@@ -274,9 +261,7 @@ function Shadow() {
   );
 }
 
-// ---------------------------------------------------------------------------
-// SVG halves with shading and gloss highlights.
-// ---------------------------------------------------------------------------
+// SVG halves with shading and gloss.
 
 function BallBottom() {
   return (

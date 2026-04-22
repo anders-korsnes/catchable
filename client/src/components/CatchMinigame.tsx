@@ -20,17 +20,12 @@ interface Props {
 }
 
 /**
- * "Wild encounter" overlay. Picks a minigame variant from the Pokémon's
- * primary type (`pickMinigame`) and renders it inside a shared frame
- * containing the WILD ENCOUNTER header (name + difficulty) and the
- * "Run away" footer.
- *
- * Each minigame component is responsible for its own throw button + result
- * feedback; this wrapper only owns the surrounding chrome.
+ * Wild encounter overlay. Picks a minigame by Pokémon type and renders it inside
+ * a header (name + difficulty) and "Run away" footer. The minigame owns its own
+ * throw button and result feedback.
  */
 export function CatchMinigame({ pokemon, onResult, onGiveUp }: Props) {
-  // Pick once on mount so parent re-renders (e.g. achievement toast
-  // dismiss) never swap the minigame mid-game.
+  // Pick once on mount so parent re-renders don't swap minigames mid-round.
   const [kind] = useState<MinigameKind>(() => pickMinigame(pokemon.types));
   const difficultyLabel = getDifficultyLabel(pokemon.baseExperience);
 

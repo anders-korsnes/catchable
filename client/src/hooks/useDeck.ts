@@ -12,20 +12,15 @@ interface DeckState {
 }
 
 interface UseDeckOptions {
-  /** When false, the hook stays idle (won't fetch). Useful while prefs load. */
+  /** When false, stays idle. Useful while prefs load. */
   enabled?: boolean;
-  /** Fired with any achievements that unlocked as a side-effect of a choice.
-   * Used by SwipePage to show toast notifications. */
+  /** Fired when a choice unlocks achievements. */
   onAchievementsUnlocked?: (achievements: UnlockedAchievement[]) => void;
 }
 
 /**
- * Manages the swipe deck. We fan out two responsibilities:
- *  - `current`: the card on screen (or null when empty / not loaded)
- *  - `decide(choice)`: records the choice and advances to the next card
- *
- * `decide` accepts 'fled' in addition to 'like'/'dislike'; the server treats
- * 'fled' as a transient exclusion (5-minute cooldown).
+ * Swipe deck state. `decide` accepts 'like' | 'dislike' | 'fled';
+ * the server treats 'fled' as a 5-minute cooldown exclusion.
  */
 export function useDeck({ enabled = true, onAchievementsUnlocked }: UseDeckOptions = {}) {
   const queryClient = useQueryClient();
@@ -61,8 +56,7 @@ export function useDeck({ enabled = true, onAchievementsUnlocked }: UseDeckOptio
           queryClient.invalidateQueries({ queryKey: ['liked'] });
         }
         if (response.newAchievements?.length) {
-          // Pulled fresh, so make sure the achievements page reflects the
-          // new unlock state next time it's opened.
+          // Refresh achievements page on next view.
           queryClient.invalidateQueries({ queryKey: ['achievements'] });
           onAchievementsUnlocked?.(response.newAchievements);
         }
@@ -72,8 +66,7 @@ export function useDeck({ enabled = true, onAchievementsUnlocked }: UseDeckOptio
         setState((s) => ({ ...s, error: message }));
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- state.current is read
-    // through a closure; decide() should only re-create when its handlers change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- state.current read via closure.
     [state.current?.pokemon?.id, queryClient, loadNext, onAchievementsUnlocked],
   );
 

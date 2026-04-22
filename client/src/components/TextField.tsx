@@ -11,8 +11,7 @@ export const TextField = forwardRef<HTMLInputElement, Props>(function TextField(
   { label, error, hint, id, className, ...rest },
   ref,
 ) {
-  // Stable id derived from name so the label/input pair is connected when no explicit
-  // id is passed. Falls back to a generated one for inputs with neither.
+  // Derive id from name when not provided so the label/input pair stays linked.
   const inputId = id ?? (rest.name ? `field-${rest.name}` : undefined);
   const describedById = error ? `${inputId}-err` : hint ? `${inputId}-hint` : undefined;
   return (

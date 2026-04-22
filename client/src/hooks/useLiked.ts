@@ -7,7 +7,7 @@ const QUERY_KEY = ['liked'] as const;
 interface LikedResponse {
   liked: LikedItem[];
   regionTotals: Record<string, number>;
-  /** Full Pokédex IDs per user-selected region (used to render missing placeholders). */
+  /** Pokédex IDs per selected region, for rendering missing placeholders. */
   regionIds: Record<string, number[]>;
 }
 

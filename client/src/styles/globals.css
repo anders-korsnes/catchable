@@ -14,12 +14,12 @@
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
-  /* Tap highlight removed — the swipe card has its own press affordance. */
+  /* Remove tap highlight; cards have their own press affordance. */
   button {
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Crisp pixel art for Pokémon sprites scaled up. */
+  /* Crisp scaling for pixel-art sprites. */
   .pixelated {
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
@@ -30,7 +30,7 @@
   .pixel-text {
     font-family: theme('fontFamily.Bungee');
     letter-spacing: 0.02em;
-    /* Pixel fonts must NOT be scaled fractionally — locked sizes preserve crispness. */
+    /* Don't scale pixel fonts fractionally. */
   }
 
   .focus-ring {

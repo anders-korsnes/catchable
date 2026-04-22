@@ -83,7 +83,7 @@ export function PokedexEntryModal({ item, onClose, onRelease }: Props) {
             />
           </svg>
         </button>
-        {/* Header: POKÉDEX ENTRY label + #number + HP */}
+        {/* Header */}
         <header className="flex items-baseline justify-between px-4 pt-3 text-white">
           <div>
             <p className="pixel-text text-[9px] tracking-[0.3em] opacity-90">POKÉDEX ENTRY</p>
@@ -128,7 +128,7 @@ export function PokedexEntryModal({ item, onClose, onRelease }: Props) {
           className="mx-3 mt-2 overflow-hidden rounded-screen border-2"
           style={{ borderColor: border }}
         >
-          {/* Name header */}
+          {/* Name */}
           <div
             className="px-3 py-1.5"
             style={{ background: base, borderBottom: `2px solid ${border}` }}
@@ -138,7 +138,7 @@ export function PokedexEntryModal({ item, onClose, onRelease }: Props) {
             </h2>
           </div>
 
-          {/* Type row */}
+          {/* Types */}
           <div
             className="flex items-center gap-2 bg-white/95 px-3 py-1.5"
             style={{ borderBottom: `2px solid ${border}` }}
@@ -179,7 +179,7 @@ export function PokedexEntryModal({ item, onClose, onRelease }: Props) {
           </div>
         </div>
 
-        {/* Joke section — same amber stripe as the catch card, text already revealed */}
+        {/* Joke stripe, matching the catch card. */}
         {joke && (
           <div
             className="mx-3 mt-2 overflow-hidden rounded-md px-3 py-2"

@@ -8,11 +8,7 @@ interface Props {
   redirectTo?: string;
 }
 
-/**
- * Friendly placeholder shown on auth-gated pages while the visitor is logged
- * out. Keeps the modal layout intact instead of bouncing them straight to the
- * login screen — they can still feel out the rest of the app first.
- */
+/** Placeholder shown on auth-gated pages when logged out; keeps the shell visible. */
 export function SignInPrompt({ title, body, redirectTo }: Props) {
   return (
     <section className="flex flex-1 flex-col items-center justify-center px-6 py-10 text-center">

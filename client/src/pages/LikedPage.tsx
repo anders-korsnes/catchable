@@ -39,11 +39,8 @@ export function LikedPage() {
 }
 
 /**
- * A region group can contain both caught Pokémon (rendered as detailed tiles)
- * and "still missing" placeholders for ones that belong to the region but
- * haven't been caught yet. Groups for user-selected regions always include a
- * full `missingIds` list so the grid visually reminds the player what's left;
- * groups for extra historical regions have empty `missingIds`.
+ * Region group: caught tiles plus "missing" placeholders for unselected IDs.
+ * Selected regions get a full missingIds list; historical regions get an empty one.
  */
 interface RegionGroup {
   region: string;
@@ -56,8 +53,7 @@ function AuthedLiked() {
   const { data, isLoading, error } = useLiked();
   const unlike = useUnlike();
   const [openItem, setOpenItem] = useState<LikedItem | null>(null);
-  // Accordion state — holds regions that the user has *collapsed*. Empty set =
-  // every group is open (the requested default).
+  // Set of collapsed regions. Empty = all open.
   const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
 
   const liked = useMemo(() => data?.liked ?? [], [data]);
@@ -65,9 +61,7 @@ function AuthedLiked() {
   const regionIds = useMemo(() => data?.regionIds ?? {}, [data]);
 
   const groups = useMemo<RegionGroup[]>(() => {
-    // Assign each caught Pokémon to its primary region (first region in the
-    // server-provided list). Dedupe in case a pokemon appears in multiple
-    // regions' lists — primary wins.
+    // Assign each caught Pokémon to its primary (first) region; dedupe by id.
     const regionMap = new Map<string, LikedItem[]>();
     const seenIds = new Set<number>();
 
@@ -80,7 +74,7 @@ function AuthedLiked() {
       regionMap.set(primaryRegion, arr);
     }
 
-    // Sort each region's caught list by Pokédex number so #1 appears first.
+    // Sort by Pokédex number.
     for (const arr of regionMap.values()) {
       arr.sort((a, b) => a.pokemon.id - b.pokemon.id);
     }
@@ -102,7 +96,7 @@ function AuthedLiked() {
         missingIds,
       });
     }
-    // Extra regions (caught before current preferences) — no "missing" list.
+    // Regions caught under previous preferences have no missing list.
     for (const region of extraRegions) {
       const caught = regionMap.get(region) ?? [];
       if (caught.length > 0) {
@@ -200,9 +194,7 @@ function AuthedLiked() {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Region section — collapsible header + grid of caught/missing cards.
-// ---------------------------------------------------------------------------
+// Collapsible region section with caught/missing grid.
 
 interface RegionSectionProps {
   group: RegionGroup;
@@ -212,8 +204,7 @@ interface RegionSectionProps {
 }
 
 function RegionSection({ group, open, onToggle, onOpenCard }: RegionSectionProps) {
-  // Merge caught + missing into a single ID-sorted list so #1 comes first
-  // regardless of whether it's caught yet.
+  // Merge caught + missing into a single ID-sorted list.
   const entries = useMemo(() => {
     const merged: Array<{ id: number; item: LikedItem | null }> = [
       ...group.caught.map((item) => ({ id: item.pokemon.id, item })),
@@ -295,9 +286,7 @@ function Chevron({ open, className = '' }: { open: boolean; className?: string }
   );
 }
 
-// ---------------------------------------------------------------------------
 // Cards
-// ---------------------------------------------------------------------------
 
 interface CardProps {
   item: LikedItem;
@@ -364,12 +353,7 @@ function PokedexCard({ item, index, onOpen }: CardProps) {
   );
 }
 
-/**
- * Placeholder card shown for Pokémon that belong to a user-selected region
- * but haven't been caught yet. Matches the real tile's dimensions so the grid
- * stays tidy, but the visual language ("???", dashed border, muted neutrals)
- * makes it clear the entry is unclaimed.
- */
+/** Placeholder for an uncaught Pokémon in the selected region. Matches real tile dimensions. */
 function MissingPokedexCard({ id, index }: { id: number; index: number }) {
   return (
     <motion.li

@@ -1,5 +1,4 @@
-// Wire-format types shared with the server. We hand-keep these in sync rather than
-// pulling Prisma types into the client — keeps the bundle small and the contract explicit.
+// Wire-format types. Kept in sync with the server by hand to avoid bundling Prisma.
 
 export interface User {
   id: string;

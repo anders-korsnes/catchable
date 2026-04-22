@@ -2,8 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import type { NamedRef } from '../lib/types';
 
-// Cache for the session but allow a refresh on next page load so server-side
-// changes (e.g. filtering out empty regions) are eventually picked up.
+// Session-long cache; reloads on next page load to pick up server-side changes.
 const PERMANENT_CACHE_OPTIONS = { staleTime: 1000 * 60 * 30, gcTime: Infinity };
 
 export function useRegions() {

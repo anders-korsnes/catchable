@@ -1,8 +1,4 @@
-/**
- * Shared "throw" button artwork + keyboard helper. Each minigame embeds its
- * own throw button (positioning differs per game), but they all use this
- * Poké Ball SVG so the action reads as the same gesture across variants.
- */
+/** Shared Poké Ball throw button used by every minigame. */
 
 interface ThrowButtonProps {
   onClick: () => void;

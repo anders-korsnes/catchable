@@ -3,7 +3,7 @@ interface Props {
   className?: string;
 }
 
-// Pure SVG so it scales for the catch animation without rasterizing.
+// SVG so it scales cleanly for the catch animation.
 export function PokeballIcon({ size = 48, className }: Props) {
   return (
     <svg

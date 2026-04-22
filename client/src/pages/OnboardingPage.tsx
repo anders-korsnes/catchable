@@ -11,12 +11,7 @@ type Step = 'regions' | 'types' | 'confirm';
 
 const STEP_ORDER: Step[] = ['regions', 'types', 'confirm'];
 
-/**
- * First-run wizard. Walks the user through choosing regions (with descriptions
- * so they can pick by era/game/vibe) and then types. Mounted at /onboarding;
- * registration drops the user here, but they can also re-run it from Settings
- * by clicking "Run setup again".
- */
+/** First-run region + type wizard. Also reachable from Settings via "Run setup again". */
 export function OnboardingPage() {
   const navigate = useNavigate();
   const regionsQuery = useRegions();
@@ -29,7 +24,7 @@ export function OnboardingPage() {
   const [types, setTypes] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
 
-  // Pre-seed selections if the user already has prefs (re-running the wizard).
+  // Seed from existing prefs when re-running the wizard.
   useEffect(() => {
     if (prefsQuery.data && regions.size === 0 && types.size === 0) {
       setRegions(new Set(prefsQuery.data.regions));

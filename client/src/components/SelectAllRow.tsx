@@ -9,11 +9,7 @@ interface Props {
   noun: string;
 }
 
-/**
- * Compact "X of Y selected" header with a single button that flips to
- * "Select all" or "Clear" depending on current state. Designed to sit just
- * above a list of checkbox-style options.
- */
+/** "X of Y selected" header with a toggle between Select all / Clear. */
 export function SelectAllRow({ selected, total, onToggle, noun }: Props) {
   const allSelected = selected >= total && total > 0;
   return (

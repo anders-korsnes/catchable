@@ -27,10 +27,9 @@ export function useSavePreferences() {
       api.put<{ preferences: Preferences }>('/api/preferences', input).then((r) => r.preferences),
     onSuccess: (preferences) => {
       queryClient.setQueryData(QUERY_KEY, preferences);
-      // Belt + braces: also invalidate so the next consumer always reads a
-      // freshly-fetched value instead of whatever happened to be cached.
+      // Invalidate so the next read refetches.
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      // Filter changed → tossed deck. Liked is unaffected by filters but cheap to invalidate.
+      // Filter change invalidates the deck.
       queryClient.invalidateQueries({ queryKey: ['deck'] });
     },
   });

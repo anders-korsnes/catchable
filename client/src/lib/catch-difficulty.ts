@@ -1,33 +1,21 @@
 /**
- * Catch-minigame difficulty model.
- *
- * PokéAPI gives us `base_experience` rather than a "level"; we treat it as a
- * proxy for catch difficulty. The mapping is *tiered* (not a smooth curve)
- * so each Pokémon falls cleanly into Easy / Medium / Hard / Legendary, with
- * a fixed sweet-spot arc per tier.
- *
- *   exp <  100   →  EASY       (52° arc)
- *   100 ≤ exp < 200 →  MEDIUM (32°)
- *   200 ≤ exp < 250 →  HARD   (16°)
- *   exp ≥ 250   →  LEGENDARY  (7°)
- *
- * Combined with the 1000 ms ring rotation, that means the LEGENDARY arc
- * window only passes the indicator for ~19 ms — so "press at the right
- * frame" is a real ask.
+ * Difficulty tiers derived from PokéAPI base_experience:
+ *   <100 EASY (52°), <200 MEDIUM (32°), <250 HARD (16°), >=250 LEGENDARY (7°).
+ * Ring rotates in 1000ms, so the legendary arc only passes for ~19ms.
  */
 
 export type Difficulty = 'easy' | 'medium' | 'hard' | 'legendary';
 
 interface Tier {
   bucket: Difficulty;
-  /** Lower bound of base_experience (inclusive). */
+  /** Inclusive lower bound on base_experience. */
   minExp: number;
-  /** Sweet-spot arc size in degrees. */
+  /** Sweet-spot arc (degrees). */
   arc: number;
   label: string;
 }
 
-// Ordered easiest → hardest.
+// Ordered easiest to hardest.
 const TIERS: Tier[] = [
   { bucket: 'easy', minExp: 0, arc: 52, label: '★☆☆ EASY' },
   { bucket: 'medium', minExp: 100, arc: 32, label: '★★☆ MEDIUM' },
@@ -39,8 +27,7 @@ export const MAX_ARC = TIERS[0].arc;
 export const MIN_ARC = TIERS[TIERS.length - 1].arc;
 
 function getTierByExperience(baseExperience: number | null | undefined): Tier {
-  // Unknown experience defaults to easy rather than legendary, so a missing
-  // value never produces an unexpectedly punishing catch window.
+  // Unknown experience defaults to easy.
   const exp = baseExperience ?? 0;
   let chosen: Tier = TIERS[0];
   for (const t of TIERS) {
@@ -57,10 +44,7 @@ export function getDifficultyLabel(baseExperience: number | null | undefined): s
   return getTierByExperience(baseExperience).label;
 }
 
-/**
- * Returns the machine-readable difficulty bucket for a Pokémon's base experience.
- * Used by the achievements engine (server-side mirror lives in `server/src/lib/difficulty.ts`).
- */
+/** Difficulty bucket. Mirrored server-side in server/src/lib/difficulty.ts. */
 export function getDifficultyBucket(
   baseExperience: number | null | undefined,
 ): Difficulty {

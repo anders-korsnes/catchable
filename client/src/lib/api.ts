@@ -1,5 +1,4 @@
-// Thin wrapper around fetch. All requests go through here for a consistent
-// error shape and to ensure credentials (cookie auth) are always included.
+// Fetch wrapper: consistent error shape, always includes cookies.
 
 export interface ApiErrorBody {
   error: { code: string; message: string; details?: unknown };
@@ -34,7 +33,6 @@ async function request<T>(
     ...init,
   });
 
-  // 204 No Content
   if (res.status === 204) return undefined as T;
 
   let payload: unknown;

@@ -129,16 +129,7 @@ function AuthedAchievements() {
   );
 }
 
-/**
- * Achievement tile.
- *
- * Three visual states, each unmistakable at a glance:
- *
- *   - **Unlocked**: full-color gold gradient, glowing icon ring, ✓ checkmark
- *     stamp, "UNLOCKED" tagline above the title. The eye should be drawn here.
- *   - **Hidden + locked**: dashed border, mystery silhouette, no spoilers.
- *   - **Visible + locked**: muted/desaturated card with a 🔒 indicator.
- */
+/** Achievement tile: unlocked (gold), hidden+locked (dashed, no spoilers), or visible+locked (muted). */
 function AchievementTile({ item, index }: { item: AchievementListItem; index: number }) {
   const locked = !item.unlocked;
   const stillHidden = item.hidden && locked;

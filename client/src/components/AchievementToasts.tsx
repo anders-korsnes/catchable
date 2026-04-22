@@ -6,12 +6,7 @@ interface Props {
   onDismiss: (id: string) => void;
 }
 
-/**
- * Stacked toast notifications for newly unlocked achievements. Pushes are
- * additive — each unlock auto-dismisses after a short delay so the player can
- * keep playing without modal interruption. The component is purely
- * presentational; the parent owns the queue (see SwipePage).
- */
+/** Stacked toast notifications for unlocked achievements. Parent owns the queue. */
 export function AchievementToasts({ achievements, onDismiss }: Props) {
   return (
     <div

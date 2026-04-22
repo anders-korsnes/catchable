@@ -1,6 +1,4 @@
-// Canonical Pokémon type color palette. Kept here (rather than only in
-// tailwind.config.ts) so JS code that needs the raw hex — gradients, shadows,
-// dynamic backgrounds — can read it without parsing Tailwind classes.
+// Pokémon type palette. Exported as hex so JS (gradients, shadows) can consume it directly.
 
 export const TYPE_COLOR: Readonly<Record<string, string>> = {
   normal: '#A8A77A',
@@ -30,13 +28,13 @@ export function colorForType(type: string | undefined | null): string {
   return TYPE_COLOR[type.toLowerCase()] ?? FALLBACK;
 }
 
-/** Slightly darker shade for borders / highlights of the same type. */
+/** Darker shade for borders/highlights. */
 export function darkerForType(type: string | undefined | null): string {
   const hex = colorForType(type);
   return shade(hex, -0.22);
 }
 
-/** Slightly lighter shade for inner panels of the same type. */
+/** Lighter shade for inner panels. */
 export function lighterForType(type: string | undefined | null): string {
   const hex = colorForType(type);
   return shade(hex, 0.18);
@@ -57,12 +55,7 @@ function clamp(channel: number, amount: number): number {
   return Math.max(0, Math.round(channel * (1 + amount)));
 }
 
-/**
- * Build a CSS background that reads as an "environment" for the Pokémon —
- * stacked radial gradients in the type colors plus a soft vignette. The
- * primary type drives the dominant hue; the secondary type (if any) seeds
- * an accent orb so dual-types feel different from mono-types.
- */
+/** Stacked radial gradients in the type colors for the card background. */
 export function environmentBackground(
   primary: string | undefined,
   secondary?: string | undefined,
@@ -73,7 +66,7 @@ export function environmentBackground(
   const accent = secondary ? colorForType(secondary) : lighterForType(primary);
   const accentLight = secondary ? lighterForType(secondary) : light;
 
-  // Order matters: first listed gradient is on top.
+  // First gradient is on top.
   return [
     `radial-gradient(circle at 22% 18%, ${withAlpha(accentLight, 0.85)} 0%, ${withAlpha(accentLight, 0)} 45%)`,
     `radial-gradient(circle at 82% 78%, ${withAlpha(accent, 0.75)} 0%, ${withAlpha(accent, 0)} 55%)`,
@@ -82,7 +75,7 @@ export function environmentBackground(
   ].join(', ');
 }
 
-/** Same idea, but wider and softer — for backgrounds behind smaller Pokédex tiles. */
+/** Softer, wider variant for Pokédex tiles. */
 export function tileEnvironmentBackground(
   primary: string | undefined,
   secondary?: string | undefined,

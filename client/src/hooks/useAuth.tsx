@@ -19,8 +19,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const queryClient = useQueryClient();
 
-  // Hydrate auth state on first mount by hitting /me. The cookie carries the
-  // session, so this works even after a hard refresh.
+  // Hydrate from /me on mount; the session cookie survives refresh.
   useEffect(() => {
     let cancelled = false;
     api
@@ -29,7 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!cancelled) setUser(res.user);
       })
       .catch((err) => {
-        // 401 just means "not signed in" — that's the normal first-visit case.
+        // 401 = not signed in; only log unexpected errors.
         if (!cancelled && !(err instanceof ApiError && err.status === 401)) {
           console.error('[auth] /me failed:', err);
         }

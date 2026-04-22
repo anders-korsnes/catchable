@@ -84,9 +84,7 @@ function AuthedSettings() {
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
-  // Re-sync local state whenever the query delivers a new data reference
-  // (initial load or refetch after a save). Reacting to the reference is safer
-  // than a one-shot hydration flag — it handles late cache refreshes too.
+  // Resync local state whenever the query returns a new data reference.
   const lastSyncedRef = useRef<typeof prefsQuery.data | null>(null);
   useEffect(() => {
     if (!prefsQuery.data) return;
@@ -142,7 +140,7 @@ function AuthedSettings() {
       return;
     }
     try {
-      // Empty array = "all difficulties" on the server.
+      // Server treats empty array as "all difficulties".
       const difficultiesPayload =
         difficulties.size === DIFFICULTY_TIERS.length ? [] : [...difficulties];
       await save.mutateAsync({

@@ -9,7 +9,7 @@ const CENTER = FIELD_SIZE / 2;
 const MARKER_SIZE = 32;
 const HALF_MARKER = MARKER_SIZE / 2;
 
-// Fixed reticle ring radii (decorative guide circles drawn on the field).
+// Reticle ring radii.
 const RING_OUTER = 110;
 const RING_MID = 80;
 const RING_INNER = 52;
@@ -21,7 +21,7 @@ interface Tuning {
   drift: number;
 }
 
-// Constant speed & sway for all difficulties — only the green zone shrinks.
+// Speed and sway are constant across difficulties; only the hit radius shrinks.
 const SWAY_SPEED = 2.0;
 const DRIFT_BASE = 106;
 
@@ -39,13 +39,8 @@ function tuningFor(baseExperience: number | null | undefined): Tuning {
 }
 
 /**
- * Bullseye minigame. A target reticle sits at the centre of the play field;
- * a Poké Ball marker drifts in smooth, breath-like figure-of-eight curves
- * (layered sine waves). The player freezes it with a throw — catch only if
- * the marker's centre is inside the green bullseye ring.
- *
- * The green zone corresponds to one of the fixed concentric reticle circles,
- * so the player can see exactly what they're aiming for.
+ * Bullseye minigame: marker drifts on layered sine waves; throw freezes it and
+ * catches if it overlaps the green ring (one of the fixed reticle circles).
  */
 export function BullseyeMinigame({ pokemon, onResult }: MinigameProps) {
   const tuning = useMemo(() => tuningFor(pokemon.baseExperience), [pokemon.baseExperience]);
@@ -119,7 +114,7 @@ export function BullseyeMinigame({ pokemon, onResult }: MinigameProps) {
     runningRef.current = false;
     const { x, y } = posRef.current;
     const dist = Math.hypot(x - CENTER, y - CENTER);
-    // Hit if any part of the ball overlaps the green zone (not just its center).
+    // Any ball overlap counts, not just the center.
     const hit = dist - HALF_MARKER <= tuning.hitRadius;
     if (hit) {
       setFeedback('hit');
@@ -143,8 +138,7 @@ export function BullseyeMinigame({ pokemon, onResult }: MinigameProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Reticle rings — all five are always drawn, but only the one matching
-  // this difficulty tier gets the green fill.
+  // All five rings render; the difficulty's ring gets the green fill.
   const allRings = [RING_OUTER, RING_MID, RING_INNER, RING_SMALL, RING_TINY];
 
   return (

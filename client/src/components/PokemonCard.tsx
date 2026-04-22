@@ -24,7 +24,7 @@ const SWIPE_THRESHOLD = 110;
 const formatHeight = (h: number) => `${(h / 10).toFixed(1)} m`;
 const formatWeight = (w: number) => `${(w / 10).toFixed(1)} kg`;
 
-// Amber striped background shared by the type row, locked patch, and peelable patch.
+// Shared amber stripe for the joke patch.
 const PATCH_BACKGROUND = `
   repeating-linear-gradient(
     -45deg,
@@ -36,12 +36,7 @@ const PATCH_BACKGROUND = `
   #fef9c3
 `;
 
-/**
- * The card uses a vertical flex layout where the image area is the *flex grow*
- * region. Every other section (top bar, name, stats, joke) has an intrinsic
- * height, so when the parent constrains the card's overall height the image
- * area shrinks first — keeping the card on a single screen without scroll.
- */
+/** Image area is the flex-grow region; other sections have intrinsic heights so the card never overflows. */
 export const PokemonCard = forwardRef<HTMLDivElement, Props>(function PokemonCard(
   { pokemon, joke, onSwipe, interactive, jokeRevealed, onRevealJoke },
   ref,
@@ -79,7 +74,7 @@ export const PokemonCard = forwardRef<HTMLDivElement, Props>(function PokemonCar
       className="relative flex h-full w-full max-w-[380px] cursor-grab select-none flex-col rounded-device border-[3px] p-3 text-white shadow-device active:cursor-grabbing"
       aria-label={`${pokemon.displayName}, ${pokemon.types.join(' and ')} type`}
     >
-      {/* ── Top bar ─────────────────────────────────────────────────────── */}
+      {/* Top bar */}
       <div className="mb-2 flex flex-none items-center justify-between">
         <div className="flex items-center gap-2">
           <span aria-hidden className="block h-4 w-4 rounded-full bg-action ring-2 ring-white/40" />
@@ -87,7 +82,7 @@ export const PokemonCard = forwardRef<HTMLDivElement, Props>(function PokemonCar
           <span aria-hidden className="block h-2 w-2 rounded-full bg-like" />
         </div>
 
-        {/* HP number (large) sits right next to the Pokédex number */}
+        {/* HP + Pokédex number */}
         <div className="flex items-baseline gap-1.5">
           <span className="drop-shadow">
             <span className="pixel-text text-[10px] font-normal text-white/80">HP</span>{' '}
@@ -101,7 +96,7 @@ export const PokemonCard = forwardRef<HTMLDivElement, Props>(function PokemonCar
         </div>
       </div>
 
-      {/* ── Pokémon image ───────────────────────────────────────────────── */}
+      {/* Pokémon image */}
       <div
         className="relative min-h-0 flex-1 overflow-hidden rounded-screen border-[3px] border-white/35"
         style={environmentStyle}
@@ -143,12 +138,12 @@ export const PokemonCard = forwardRef<HTMLDivElement, Props>(function PokemonCar
         </motion.div>
       </div>
 
-      {/* ── Name + Stats (combined card) ────────────────────────────────── */}
+      {/* Name + stats */}
       <div
         className="mt-2 flex-none overflow-hidden rounded-screen border-2 shadow-sm"
         style={{ borderColor: border }}
       >
-        {/* Name header — solid type colour */}
+        {/* Name */}
         <div
           className="px-3 py-1.5"
           style={{
@@ -161,7 +156,7 @@ export const PokemonCard = forwardRef<HTMLDivElement, Props>(function PokemonCar
           </h2>
         </div>
 
-        {/* Type row */}
+        {/* Types */}
         <div
           className="flex items-center gap-2 bg-white/95 px-3 py-1.5"
           style={{ borderBottom: `2px solid ${border}` }}
@@ -174,7 +169,7 @@ export const PokemonCard = forwardRef<HTMLDivElement, Props>(function PokemonCar
           </div>
         </div>
 
-        {/* Height / Weight / LVL — three columns with dashed vertical dividers */}
+        {/* Height / Weight / LVL */}
         <dl className="grid grid-cols-3 divide-x-2 divide-dashed divide-ink/[0.12] bg-white/95">
           <Stat label="HEIGHT" value={formatHeight(pokemon.height)} />
           <Stat label="WEIGHT" value={formatWeight(pokemon.weight)} />
@@ -193,18 +188,13 @@ export const PokemonCard = forwardRef<HTMLDivElement, Props>(function PokemonCar
         )}
       </div>
 
-      {/* ── Joke section ────────────────────────────────────────────────── */}
       {/*
-       * The joke text is always rendered (establishing the section's height),
-       * but stays invisible while the patch overlay is on top. This guarantees
-       * the locked state and the peelable state have identical heights.
-       *
-       * Locked state   → patch visible, non-interactive
-       * Peelable state → patch visible, clickable
-       * Revealed state → patch exits via the peel animation, joke text shows
+       * Joke: text is always rendered (to fix the section height) but stays
+       * invisible behind the patch until revealed.
+       * States: locked (static patch), peelable (clickable patch), revealed (patch peeled away).
        */}
       <div className={`relative mt-1.5 flex-none overflow-hidden rounded-md bg-white/95 px-3 py-2 text-ink shadow-sm${jokeRevealed ? '' : ' h-[65px]'}`}>
-        {/* Joke text — invisible until the patch peels away */}
+        {/* Joke text, hidden until peeled. */}
         <div aria-hidden={!jokeRevealed} className={jokeRevealed ? '' : 'invisible'}>
           <p className="text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
             {joke?.category ? `Joke · ${joke.category}` : 'Random joke'}
@@ -212,13 +202,7 @@ export const PokemonCard = forwardRef<HTMLDivElement, Props>(function PokemonCar
           <p className="mt-0.5 text-[12px] leading-snug">{joke?.value ?? 'Loading joke…'}</p>
         </div>
 
-        {/* Patch overlay ─────────────────────────────────────────────────
-         * Sits absolutely over the joke text. Both states (locked / peelable)
-         * use the same stripe style so height is identical.
-         *
-         * On exit (when jokeRevealed flips to true), the patch pivots from its
-         * top-left corner and sweeps to the right — like peeling a sticker.
-         */}
+        {/* Patch overlay. On exit, pivots from top-left and sweeps right (peel). */}
         <AnimatePresence>
           {!jokeRevealed && (
             <motion.div
@@ -226,7 +210,7 @@ export const PokemonCard = forwardRef<HTMLDivElement, Props>(function PokemonCar
               className="absolute inset-0 rounded-xl border-2"
               style={{
                 background: PATCH_BACKGROUND,
-                // The peel fans out from the top-left corner.
+                // Peel pivot point.
                 transformOrigin: 'top left',
               }}
               exit={{
@@ -238,7 +222,7 @@ export const PokemonCard = forwardRef<HTMLDivElement, Props>(function PokemonCar
               transition={{ duration: 0.48, ease: [0.4, 0, 0.2, 1] }}
             >
               {onRevealJoke ? (
-                // Peelable: dashed-border button matching reference CTA style
+                // Peelable state
                 <button
                   type="button"
                   onClick={onRevealJoke}
@@ -253,7 +237,7 @@ export const PokemonCard = forwardRef<HTMLDivElement, Props>(function PokemonCar
                   </div>
                 </button>
               ) : (
-                // Locked: same dashed-border container, no interaction
+                // Locked state
                 <div className="flex h-full w-full items-center justify-center rounded-md p-2">
                   <div className="flex w-full flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-dashed border-amber-600/40 py-1.5">
                     <span className="pixel-text text-[12px] italic tracking-wider text-amber-800/60">

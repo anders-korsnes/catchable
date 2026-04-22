@@ -15,13 +15,12 @@ export function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
-      {/* Onboarding wizard runs once after registration. Requires auth. */}
+      {/* Onboarding requires auth. */}
       <Route element={<ProtectedRoute />}>
         <Route path="/onboarding" element={<OnboardingPage />} />
       </Route>
 
-      {/* The main app shell is public — visitors can browse the layout and
-          peek at every tab. Each page handles its own logged-out fallback. */}
+      {/* Shell is public; each page handles its own logged-out state. */}
       <Route element={<AppShell />}>
         <Route index element={<SwipePage />} />
         <Route path="liked" element={<LikedPage />} />

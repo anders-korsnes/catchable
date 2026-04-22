@@ -2,10 +2,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { PokeballIcon } from './PokeballIcon';
 
-// Each tab is a vertical icon-over-label tile. Stacking lets the (very wide)
-// pixel font sit on its own line at a smaller size, so all four tabs comfortably
-// fit even on narrow phones. min-w-0 + truncate guards against accidental
-// overflow if a label ever grows.
+// Vertical icon-over-label tile. min-w-0 + truncate prevents overflow on narrow phones.
 const getTabClassName = ({ isActive }: { isActive: boolean }) =>
   [
     'flex flex-1 min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1.5 transition-colors',
@@ -15,16 +12,9 @@ const getTabClassName = ({ isActive }: { isActive: boolean }) =>
 const TAB_LABEL_CLASS = 'pixel-text text-[8px] tracking-[0.12em] truncate';
 
 /**
- * App layout: a centered, fixed-height "device" panel.
- *
- *   - Header and bottom nav are sticky (don't scroll).
- *   - The middle <main> takes the remaining height and scrolls internally
- *     so long pages (Pokédex, Settings) stay inside the modal frame.
- *   - The outer container uses `100dvh` so mobile browsers' dynamic toolbars
- *     don't push the modal off-screen.
- *
- * The element gets `id="app-modal"` so the catch animation can measure it
- * and choreograph the Poké Ball just outside the modal's right edge.
+ * Centered fixed-height "device" panel with sticky header/nav and scrollable main.
+ * Uses 100dvh so mobile toolbars don't push it off-screen.
+ * Exposes id="app-modal" for the catch animation to measure.
  */
 export function AppShell() {
   const { user, logout } = useAuth();

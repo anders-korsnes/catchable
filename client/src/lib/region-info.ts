@@ -1,7 +1,5 @@
-// Hand-authored descriptions for each PokéAPI region. Shown in the onboarding
-// wizard and Settings so users have context on what they're picking. Keys are
-// the same lowercase region names PokéAPI returns — anything not in this map
-// renders without a description rather than crashing.
+// Region descriptions shown in onboarding and Settings.
+// Keys are lowercase PokéAPI region names; unknown keys return null.
 
 export interface RegionInfo {
   generation: string;

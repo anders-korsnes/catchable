@@ -144,7 +144,7 @@ export function PendulumMinigame({ pokemon, onResult }: MinigameProps) {
             viewBox={`0 0 ${FIELD_W} ${FIELD_H}`}
             className="absolute inset-0"
           >
-            {/* Full swing arc guide */}
+            {/* Swing arc guide */}
             <path
               d={`M ${flx} ${fly} A ${STRING_LEN} ${STRING_LEN} 0 0 1 ${frx} ${fry}`}
               fill="none"
@@ -153,7 +153,7 @@ export function PendulumMinigame({ pokemon, onResult }: MinigameProps) {
               strokeDasharray="4 4"
             />
 
-            {/* Sweet zone wedge */}
+            {/* Sweet zone */}
             <path d={arcPath} fill="rgba(34,197,94,0.25)" stroke="none" />
             <line x1={PIVOT_X} y1={PIVOT_Y} x2={lx} y2={ly} stroke="#16A34A" strokeWidth={2} strokeDasharray="4 3" />
             <line x1={PIVOT_X} y1={PIVOT_Y} x2={rx} y2={ry} stroke="#16A34A" strokeWidth={2} strokeDasharray="4 3" />
@@ -178,9 +178,7 @@ export function PendulumMinigame({ pokemon, onResult }: MinigameProps) {
               strokeWidth={2}
             />
 
-            {/* Ball group — translated every frame so the whole Poké Ball
-                follows the pendulum. Uses a local coordinate system centered
-                at (0,0) so the transform is just translate(bx, by). */}
+            {/* Ball group, translated per frame; local origin at (0,0). */}
             <g ref={ballGroupRef} transform={`translate(${initBx}, ${initBy})`}>
               <circle r={BALL_R} fill="#FFFFFF" stroke="#0F172A" strokeWidth={2.4} />
               <clipPath id="pend-ball-clip">

@@ -13,15 +13,9 @@ import type { Joke, PokemonSummary, UnlockedAchievement } from '../lib/types';
 type SwipeDirection = 'left' | 'right' | null;
 
 /**
- * Tracks what stage the player is in after winning the catch minigame:
- *
- *   'reveal-pending' — the Pokémon is caught but the joke is still hidden
- *                      behind a "REVEAL JOKE" button.
- *   'revealed'       — the joke is visible; the player can now store the
- *                      Pokémon in their Pokédex.
- *
- * The catch is recorded server-side as soon as the player wins the minigame,
- * so navigating away mid-reveal still keeps the catch and any achievements.
+ * Post-catch stage. Server records the catch on minigame win, so leaving mid-reveal keeps it.
+ *   'reveal-pending' — joke hidden behind "REVEAL JOKE" button.
+ *   'revealed'       — joke shown; player can store the Pokémon.
  */
 type PostCatchStage = 'reveal-pending' | 'revealed';
 
@@ -77,36 +71,33 @@ function SwipeDeckView() {
   const [swipeDirection, setSwipeDirection] = useState<SwipeDirection>(null);
   const [minigameOpen, setMinigameOpen] = useState(false);
   const [postCatchStage, setPostCatchStage] = useState<PostCatchStage | null>(null);
-  // Snapshot of the just-caught Pokémon so the reveal/store stage keeps
-  // showing it while `current` advances to the next deck entry in the background.
+  // Snapshot of the just-caught Pokémon; keeps the UI stable while `current` advances.
   const [caughtCard, setCaughtCard] = useState<{ pokemon: PokemonSummary; joke: Joke | undefined } | null>(null);
   const [fledMessage, setFledMessage] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
-  // Ref for the caught-card wrapper — used by the store animation.
+  // Scope for the store animation.
   const [caughtCardScope, animateCaughtCard] = useAnimate<HTMLDivElement>();
-  // Prevents double-clicks or overlapping async actions.
+  // Guards against double-clicks and overlapping async actions.
   const isProcessingRef = useRef(false);
 
-  // Read through a ref inside the card-change effect so the effect only
-  // fires when the deck advances, not when `postCatchStage` toggles.
+  // Ref so the deck-advance effect ignores postCatchStage toggles.
   const postCatchStageRef = useRef<PostCatchStage | null>(null);
   postCatchStageRef.current = postCatchStage;
 
   useEffect(() => {
-    // Don't blow away the caught/reveal stage when `current` advances; the
-    // catch flow owns its own teardown via handleStore().
+    // The catch flow owns its own teardown (handleStore); don't clear mid-reveal.
     if (postCatchStageRef.current) return;
     setMinigameOpen(false);
     setFledMessage(null);
   }, [current?.pokemon?.id]);
 
-  /** Right-swipe / "Catch" click → open the catch minigame. */
+  /** Open the catch minigame. */
   const handleAttemptCatch = useCallback(() => {
     if (isProcessingRef.current || postCatchStage || !current?.pokemon) return;
     setMinigameOpen(true);
   }, [postCatchStage, current]);
 
-  /** Left-swipe / "Pass" click → record dislike and slide the card off-screen. */
+  /** Record dislike and slide the card off-screen. */
   const handlePass = useCallback(async () => {
     if (isProcessingRef.current || postCatchStage || !current?.pokemon) return;
     isProcessingRef.current = true;
@@ -128,19 +119,13 @@ function SwipeDeckView() {
     [handleAttemptCatch, handlePass],
   );
 
-  /**
-   * Minigame win. Records the catch immediately so achievements/server state
-   * stay correct, then enters 'reveal-pending' so the player can tap
-   * REVEAL JOKE on their own time.
-   */
+  /** Minigame win: record the catch, then enter 'reveal-pending'. */
   const handleCatchSuccess = useCallback(() => {
     if (!current?.pokemon) return;
     setMinigameOpen(false);
     setCaughtCard({ pokemon: current.pokemon, joke: current.joke });
     setPostCatchStage('reveal-pending');
-    // Records the catch and (in the background) loads the next card. The
-    // caught snapshot above keeps the UI showing this Pokémon until the
-    // player taps "Store in Pokédex".
+    // Records the catch and loads the next card in the background.
     void decide('like');
   }, [current, decide]);
 
@@ -148,10 +133,7 @@ function SwipeDeckView() {
     setPostCatchStage('revealed');
   }, []);
 
-  /**
-   * Player tapped "Store in Pokédex". The card shrinks into a Poké-Ball-sized
-   * circle and flies down to the Dex tab, then state clears so the next card appears.
-   */
+  /** Shrink the card into a ball and fly it to the Dex tab, then clear state. */
   const handleStore = useCallback(async () => {
     if (isProcessingRef.current) return;
     isProcessingRef.current = true;
@@ -162,17 +144,17 @@ function SwipeDeckView() {
     if (el && tabEl) {
       const cardRect = el.getBoundingClientRect();
       const tabRect = tabEl.getBoundingClientRect();
-      // How far to translate the card center so it lands on the tab center.
+      // Translation from card center to tab center.
       const dx = tabRect.left + tabRect.width / 2 - (cardRect.left + cardRect.width / 2);
       const dy = tabRect.top + tabRect.height / 2 - (cardRect.top + cardRect.height / 2);
 
-      // Phase 1: shrink into a small circle (≈Poké Ball size).
+      // Phase 1: shrink to a ball.
       await animateCaughtCard(
         el,
         { scale: 0.12, borderRadius: '50%', opacity: 0.85 },
         { duration: 0.35, ease: [0.4, 0, 0.2, 1] },
       );
-      // Phase 2: fly to the Dex tab and fade out.
+      // Phase 2: fly to the Dex tab and fade.
       await animateCaughtCard(
         el,
         { x: dx, y: dy, scale: 0.06, opacity: 0 },
@@ -185,7 +167,7 @@ function SwipeDeckView() {
     isProcessingRef.current = false;
   }, [caughtCardScope, animateCaughtCard]);
 
-  /** Failed catch → record 'fled' (5-min cooldown) and show the fled message. */
+  /** Record 'fled' (5-min cooldown) and show the fled message. */
   const handlePokemonFled = useCallback(async () => {
     if (isProcessingRef.current || !current?.pokemon) return;
     isProcessingRef.current = true;
@@ -209,7 +191,7 @@ function SwipeDeckView() {
     [handleCatchSuccess, handlePokemonFled],
   );
 
-  /** Player gives up on the minigame → counts as a flee (with cooldown). */
+  /** Giving up counts as a flee (with cooldown). */
   const handleGiveUp = useCallback(() => {
     setMinigameOpen(false);
     void handlePokemonFled();
@@ -275,7 +257,7 @@ function SwipeDeckView() {
 
   const isSwiping = !!swipeDirection;
   const isShowingFledMessage = !!fledMessage;
-  // While the caught snapshot is up, hide the underlying live card.
+  // Hide the live card while the caught snapshot is showing.
   const isShowingCaughtCard = !!postCatchStage && !!caughtCard;
   const isLiveCardVisible =
     !isSwiping && !isShowingFledMessage && !isShowingCaughtCard && !!current?.pokemon;

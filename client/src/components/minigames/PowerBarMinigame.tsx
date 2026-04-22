@@ -112,7 +112,7 @@ export function PowerBarMinigame({ pokemon, onResult }: MinigameProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Zone geometry in SVG coordinates.
+  // Zone geometry (SVG space).
   const zoneH = (zonePct / 100) * trackH;
   const zoneY = trackY;
 
@@ -140,7 +140,7 @@ export function PowerBarMinigame({ pokemon, onResult }: MinigameProps) {
             viewBox={`0 0 ${BAR_W} ${BAR_H}`}
             className="absolute inset-0"
           >
-            {/* Chassis background */}
+            {/* Chassis */}
             <rect
               x={0} y={0} width={BAR_W} height={BAR_H}
               rx={10} ry={10}
@@ -149,20 +149,20 @@ export function PowerBarMinigame({ pokemon, onResult }: MinigameProps) {
               strokeWidth={3}
             />
 
-            {/* Track background (inner area) */}
+            {/* Track */}
             <rect
               x={trackX} y={trackY} width={trackW} height={trackH}
               rx={6} ry={6}
               fill="#CBD5E1"
             />
 
-            {/* Catch zone — highlighted band near the top */}
+            {/* Catch zone */}
             <rect
               x={trackX} y={zoneY} width={trackW} height={zoneH}
               rx={6} ry={6}
               fill="rgba(34,197,94,0.3)"
             />
-            {/* Zone threshold line */}
+            {/* Threshold line */}
             <line
               x1={trackX} y1={zoneY + zoneH}
               x2={trackX + trackW} y2={zoneY + zoneH}
@@ -179,7 +179,7 @@ export function PowerBarMinigame({ pokemon, onResult }: MinigameProps) {
               fill="#22C55E"
             />
 
-            {/* Cursor line — bright top edge of the fill */}
+            {/* Cursor at fill top */}
             <line
               ref={cursorRef}
               x1={trackX - 1} y1={trackY + trackH}

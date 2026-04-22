@@ -1,4 +1,4 @@
-// Soft pastel backgrounds — light enough for dark text, hue-matched to each type.
+// Pastel backgrounds per type, tuned for dark text.
 const TYPE_SOFT_BG: Record<string, string> = {
   normal:   '#f0ede6',
   fire:     '#ffe8d0',

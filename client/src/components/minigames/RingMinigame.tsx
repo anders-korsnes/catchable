@@ -11,13 +11,8 @@ const CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 const ROTATION_MS = 1000;
 
 /**
- * Rotating-indicator minigame (the "classic"). A dot sweeps clockwise around
- * a ring; the player must throw when it crosses a small green sweet-spot
- * arc. On throw the indicator freezes at its current position so the result
- * is visually unambiguous.
- *
- * Difficulty (per the catch-difficulty tier) determines `arcSize` — the
- * smaller it is, the tighter the timing window.
+ * Ring minigame: indicator sweeps clockwise; throw to stop it inside the green arc.
+ * Difficulty tier controls arcSize (smaller = tighter window).
  */
 export function RingMinigame({ pokemon, onResult }: MinigameProps) {
   const arcSize = useMemo(() => getArcSizeByExperience(pokemon.baseExperience), [pokemon.baseExperience]);
