@@ -9,6 +9,7 @@ import {
   environmentBackground,
   lighterForType,
 } from '../lib/type-colors';
+import { formatHeight, formatWeight } from '../lib/format';
 
 interface Props {
   pokemon: PokemonSummary;
@@ -20,9 +21,6 @@ interface Props {
 }
 
 const SWIPE_THRESHOLD = 110;
-
-const formatHeight = (h: number) => `${(h / 10).toFixed(1)} m`;
-const formatWeight = (w: number) => `${(w / 10).toFixed(1)} kg`;
 
 // Shared amber stripe for the joke patch.
 const PATCH_BACKGROUND = `

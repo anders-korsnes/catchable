@@ -9,15 +9,13 @@ import {
   lighterForType,
 } from '../lib/type-colors';
 import { getDifficultyLabel } from '../lib/catch-difficulty';
+import { formatHeight, formatWeight } from '../lib/format';
 
 interface Props {
   item: LikedItem;
   onClose: () => void;
   onRelease: () => void;
 }
-
-const formatHeight = (h: number) => `${(h / 10).toFixed(1)} m`;
-const formatWeight = (w: number) => `${(w / 10).toFixed(1)} kg`;
 
 const PATCH_BACKGROUND = `
   repeating-linear-gradient(

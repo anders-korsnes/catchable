@@ -9,6 +9,7 @@ import { CatchMinigame } from '../components/CatchMinigame';
 import { SignInPrompt } from '../components/SignInPrompt';
 import { AchievementToasts } from '../components/AchievementToasts';
 import type { Joke, PokemonSummary, UnlockedAchievement } from '../lib/types';
+import { capitalize } from '../lib/format';
 
 type SwipeDirection = 'left' | 'right' | null;
 
@@ -403,11 +404,6 @@ function SwipeDeckView() {
       )}
     </section>
   );
-}
-
-function capitalize(name: string) {
-  if (!name) return name;
-  return name.charAt(0).toUpperCase() + name.slice(1);
 }
 
 function PokeballLoader() {
