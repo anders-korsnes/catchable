@@ -3,7 +3,7 @@ import { AUTH_COOKIE_NAME, verifyToken } from '../lib/auth.js';
 import { unauthorized } from '../lib/errors.js';
 
 declare global {
-  // Augment Express Request so downstream handlers can read req.user without casts.
+  // Augment Express Request so handlers can read req.user without casts.
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {

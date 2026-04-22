@@ -32,14 +32,13 @@ describe('pickCategoryForTypes', () => {
     expect(pickCategoryForTypes(['mystery-unknown', 'water'], CATEGORIES)).toBe('travel');
   });
 
-  it('returns null when no type maps to an available category — caller should use random', () => {
+  it('returns null when no type maps to an available category (caller uses random)', () => {
     expect(pickCategoryForTypes(['mystery-unknown'], CATEGORIES)).toBeNull();
     expect(pickCategoryForTypes([], CATEGORIES)).toBeNull();
   });
 
   it('returns null when the mapped category is not currently available upstream', () => {
-    // Simulate Chuck Norris API not exposing "sport" anymore — the fighting type's
-    // mapping is unavailable, so the matcher should signal "use random".
+    // 'sport' missing from upstream → fighting's mapping is unavailable, matcher returns null.
     const limited = ['dev', 'travel'] as const;
     expect(pickCategoryForTypes(['fighting'], limited)).toBeNull();
   });

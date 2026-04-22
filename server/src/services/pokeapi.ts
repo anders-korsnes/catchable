@@ -5,8 +5,7 @@ import { upstream } from '../lib/errors.js';
 const POKEAPI_BASE = 'https://pokeapi.co/api/v2';
 
 // --- Schemas -----------------------------------------------------------------
-// Only the fields the app uses are validated. Schemas use .passthrough() so
-// PokéAPI can add fields without breaking anything.
+// Only validates fields the app uses. .passthrough() so upstream additions don't break parsing.
 
 const namedRefSchema = z.object({ name: z.string(), url: z.string().url() });
 
@@ -20,8 +19,7 @@ const typeListSchema = z.object({
 
 const regionDetailSchema = z.object({
   name: z.string(),
-  // PokéAPI's /region/{name} no longer exposes pokemon_species directly — the
-  // species live under one or more pokedex resources linked from here.
+  // /region/{name} no longer exposes pokemon_species directly; species live under linked pokedexes.
   pokedexes: z.array(namedRefSchema),
 });
 
@@ -120,10 +118,7 @@ async function fetchJson<T>(path: string, schema: z.ZodType<T>): Promise<T> {
   return parsed.data;
 }
 
-/**
- * Fetch the raw, unprocessed JSON for a single Pokémon from PokéAPI.
- * Used by the deck route to log the full data for the card being served.
- */
+/** Raw unprocessed PokéAPI JSON for a single Pokémon. Used by the deck route for logging. */
 export async function getRawPokemonData(idOrName: number | string): Promise<unknown> {
   const url = `${POKEAPI_BASE}/pokemon/${idOrName}`;
   const res = await fetch(url);
@@ -137,9 +132,7 @@ export async function listRegions(): Promise<NamedRef[]> {
   const data = await getCached('regions', () => fetchJson('/region?limit=100', regionListSchema));
   const allNames = data.results.map((r) => r.name);
 
-  // Filter out regions that have no Pokémon in PokéAPI (e.g. "orre"). We call
-  // loadRegionSpecies which is already cached, so after the first request this
-  // is effectively free.
+  // Filter out regions with no Pokémon (e.g. "orre"). loadRegionSpecies is cached.
   const withPokemon = await Promise.all(
     allNames.map(async (name) => {
       try {
@@ -156,7 +149,7 @@ export async function listRegions(): Promise<NamedRef[]> {
 
 export async function listTypes(): Promise<NamedRef[]> {
   const data = await getCached('types', () => fetchJson('/type?limit=100', typeListSchema));
-  // Drop "unknown" and "shadow" — they aren't standard playable types.
+  // Drop "unknown" and "shadow" — not standard playable types.
   return data.results
     .map((t) => ({ name: t.name }))
     .filter((t) => t.name !== 'unknown' && t.name !== 'shadow');
@@ -171,14 +164,12 @@ interface SpeciesIndexEntry {
   baseExperience: number | null;
 }
 
-// Fetching every species in a region is costly, so an index is built on first
-// use: region → [{id, name, types}]. Cached for the process lifetime.
+// Region → species index, built on first use and cached for the process lifetime.
 async function loadRegionSpecies(region: string): Promise<SpeciesIndexEntry[]> {
   return getCached(`region:${region}:species`, async () => {
     const detail = await fetchJson(`/region/${region}`, regionDetailSchema);
-    // A region can link to multiple pokedexes (e.g. Alola has island-specific
-    // dexes plus the combined "original-alola" / "updated-alola"). Merge species
-    // across all of them, deduped, so the user gets the full regional roster.
+    // A region can link to multiple pokedexes (e.g. Alola's island + combined dexes);
+    // merge and dedupe across all of them.
     const speciesNameSet = new Set<string>();
     for (const dex of detail.pokedexes) {
       try {
@@ -189,7 +180,7 @@ async function loadRegionSpecies(region: string): Promise<SpeciesIndexEntry[]> {
           speciesNameSet.add(entry.pokemon_species.name);
         }
       } catch {
-        // A pokedex occasionally fails to resolve — skip it rather than failing the whole region.
+        // Skip a failing pokedex rather than failing the whole region.
       }
     }
     const speciesNames = [...speciesNameSet];
@@ -216,7 +207,7 @@ async function loadRegionSpecies(region: string): Promise<SpeciesIndexEntry[]> {
               baseExperience: pokemon.base_experience ?? null,
             } satisfies SpeciesIndexEntry;
           } catch {
-            // A handful of obscure species occasionally 404 from PokéAPI; just skip them.
+            // Obscure species occasionally 404 from PokéAPI — skip them.
             return null;
           }
         }),
@@ -243,7 +234,7 @@ export async function getPokemonSummary(idOrName: number | string): Promise<Poke
   const pokemon = await getCached(key, () => fetchJson(`/pokemon/${idOrName}`, pokemonSchema));
   const artwork = pokemon.sprites.other?.['official-artwork']?.front_default;
   const hp = pokemon.stats.find((s) => s.stat.name === 'hp')?.base_stat ?? null;
-  // Take the first 3 moves alphabetically (PokéAPI returns them sorted).
+  // First 3 moves (PokéAPI returns them alphabetically sorted).
   const moves = pokemon.moves.slice(0, 3).map((m) => m.move.name);
   return {
     id: pokemon.id,

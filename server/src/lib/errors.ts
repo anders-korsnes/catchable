@@ -1,5 +1,4 @@
-// Typed error class so route handlers can throw with a status + machine code,
-// and the central error middleware turns it into the standard JSON shape.
+// Typed error with status + machine code. The error middleware renders it as the standard JSON shape.
 export class HttpError extends Error {
   readonly status: number;
   readonly code: string;

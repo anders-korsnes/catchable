@@ -1,5 +1,4 @@
-// Catchable — data model.
-// SQLite is used for zero-install portability. Tables stay snake_case via @@map.
+// Catchable data model. SQLite for zero-install portability; tables are snake_case via @@map.
 
 generator client {
   provider = "prisma-client-js"
@@ -25,10 +24,9 @@ model User {
 
 model UserPreference {
   userId String @id @map("user_id")
-  // SQLite has no native JSON column — list-valued prefs are stored as
-  // comma-separated strings and round-tripped through encode/decode helpers
-  // so callers see string[]. `difficulties` is a subset of
-  // 'easy' | 'medium' | 'hard' | 'legendary'; empty string means "all".
+  // SQLite has no JSON column: list-valued prefs are stored comma-separated
+  // and round-tripped via encode/decode helpers. `difficulties` is a subset
+  // of 'easy'|'medium'|'hard'|'legendary'; empty string means "all".
   regions      String
   types        String
   difficulties String @default("")
@@ -42,9 +40,8 @@ model PokemonChoice {
   id        Int      @id @default(autoincrement())
   userId    String   @map("user_id")
   pokemonId Int      @map("pokemon_id")
-  // 'like' | 'dislike' | 'fled' — validated at the application layer.
-  // 'fled' is recorded when the catch minigame is missed and is treated
-  // as a *temporary* exclusion (5-minute cooldown) by the deck loader.
+  // 'like'|'dislike'|'fled', validated at the app layer.
+  // 'fled' = missed the catch minigame; deck loader excludes it for 5 minutes.
   choice    String
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -55,10 +52,8 @@ model PokemonChoice {
   @@map("pokemon_choices")
 }
 
-// Per-user achievement unlocks. Achievement *definitions* live in code
-// (server/src/lib/achievements/catalog.ts) so we can iterate on them without
-// migrations; this table just records "which achievement IDs are unlocked,
-// and when".
+// Per-user achievement unlocks. Definitions live in code
+// (server/src/lib/achievements/catalog.ts) so they can change without migrations.
 model UserAchievement {
   id            String   @id @default(cuid())
   userId        String   @map("user_id")

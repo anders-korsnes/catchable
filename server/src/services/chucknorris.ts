@@ -18,8 +18,7 @@ export interface Joke {
   category: string | null;
 }
 
-// Same one-example-per-shape logging trick used in pokeapi.ts so the joke
-// payload structure is visible in the dev console without spamming.
+// Log one example per endpoint shape to keep the dev console readable.
 const loggedShapes = new Set<string>();
 
 function logResponse(path: string, json: unknown): void {
@@ -55,18 +54,15 @@ async function getCategories(): Promise<string[]> {
   const cached = await getCached(
     'chuck:categories',
     async () => (await fetchJson('/jokes/categories', categoriesSchema)) ?? [],
-    1000 * 60 * 60, // 1h — categories rarely change, short TTL prevents stale data
+    1000 * 60 * 60, // 1h
   );
   return cached;
 }
 
 /**
- * Pick the joke category for a Pokémon's types. Returns null when no mapping
- * applies, signalling "use the random endpoint instead".
- *
- * Pure-ish: takes the available category list explicitly so the matcher can be
- * unit-tested without hitting the network. The route handler injects the live
- * category list via getJokeForTypes below.
+ * Pick a joke category for a Pokémon's types. Returns null when no mapping
+ * applies (caller should use the random endpoint).
+ * Takes the category list explicitly so it's testable without network calls.
  */
 export function pickCategoryForTypes(
   pokemonTypes: string[],
@@ -91,8 +87,7 @@ export async function getJokeForTypes(pokemonTypes: string[]): Promise<Joke> {
     if (joke) return { id: joke.id, value: joke.value, category };
   }
 
-  // Fallback: random joke. If even this fails, return a static placeholder so the
-  // user-facing card never breaks just because a joke API hiccupped.
+  // Fallback: random joke, then a static placeholder if the API is down.
   const random = await fetchJson('/jokes/random', jokeSchema);
   if (random) return { id: random.id, value: random.value, category: null };
 

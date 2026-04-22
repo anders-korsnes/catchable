@@ -5,8 +5,7 @@ import { listRegions, listTypes } from '../services/pokeapi.js';
 
 export const referenceRouter = Router();
 
-// Region/type lists are static reference data, gated behind auth to prevent
-// anonymous traffic from warming the cache.
+// Static reference data. Gated behind auth so anonymous traffic can't warm the cache.
 referenceRouter.use(requireAuth);
 
 referenceRouter.get(

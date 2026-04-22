@@ -1,6 +1,5 @@
-// Stable pool of names used for the "Josh the Charmander" gimmick. We seed the
-// pick by Pokémon id so the same Pokémon always gets the same name for a given
-// user — otherwise the joke gets old fast and the Liked view looks confusing.
+// Name pool for the "Josh the Charmander" gimmick. Keyed by Pokémon id so the
+// same Pokémon always gets the same name.
 const NAMES = [
   'Josh', 'Mia', 'Sam', 'Rio', 'Aria', 'Luna', 'Finn', 'Theo', 'Nora', 'Kai',
   'Zoe', 'Eli', 'Maya', 'Leo', 'Ivy', 'Jude', 'Cleo', 'Otto', 'Wren', 'Ezra',

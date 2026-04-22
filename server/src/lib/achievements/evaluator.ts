@@ -13,8 +13,7 @@ export interface CatchEvalContext {
   pokemonTypes: string[];
   baseExperience: number | null;
   catchTime: Date;
-  /** True iff this catch overwrote a previous 'fled' record for the same
-   * pokemon (used to award the `comeback` achievement). */
+  /** True iff this catch overwrote a previous 'fled' record (drives `comeback`). */
   wasPreviouslyFled: boolean;
   preference: { regions: string[]; types: string[] };
 }
@@ -28,8 +27,7 @@ export interface FleeEvalContext {
   preference: { regions: string[]; types: string[] };
 }
 
-// Returns the achievement IDs already unlocked by the user.
-// Centralised to prevent duplicate awards across callers.
+// Achievement IDs already unlocked by the user.
 async function loadUnlocked(userId: string): Promise<Set<string>> {
   const rows = await prisma.userAchievement.findMany({
     where: { userId },
@@ -56,13 +54,8 @@ async function award(userId: string, ids: string[]): Promise<void> {
 // ---------------------------------------------------------------------------
 
 /**
- * Evaluate every achievement that *could* unlock as a result of a successful
- * catch. Returns the IDs that were *newly* unlocked (already-unlocked ones
- * are filtered out so the caller can surface them as a notification).
- *
- * Region/type completion is intentionally scoped to the user's *current*
- * preferences — we don't try to evaluate "have you caught all of Hoenn?"
- * if Hoenn isn't part of their selected regions.
+ * Evaluate achievements triggered by a successful catch. Returns newly-unlocked IDs.
+ * Region/type completion is scoped to the user's current preferences.
  */
 export async function evaluateOnCatch(
   userId: string,
@@ -71,7 +64,7 @@ export async function evaluateOnCatch(
   const unlocked = await loadUnlocked(userId);
   const candidates: string[] = [];
 
-  // 1. Catch-count thresholds. The just-recorded catch is already in the DB.
+  // Catch-count thresholds (the new catch is already in the DB).
   const totalCaught = await prisma.pokemonChoice.count({
     where: { userId, choice: 'like' },
   });
@@ -79,47 +72,41 @@ export async function evaluateOnCatch(
     if (totalCaught >= t.n) candidates.push(t.id);
   }
 
-  // 2. Difficulty firsts.
+  // Difficulty firsts.
   const diff = getDifficultyBucket(ctx.baseExperience);
   candidates.push(DIFFICULTY_TO_ACHIEVEMENT[diff]);
 
-  // 3. "Apex Predator" — 10 Hard or Legendary catches. Walks all liked
-  // pokemon's base experience; cheap because summaries are cached.
+  // Apex Predator — 10 Hard/Legendary catches. Summaries are cached so this is cheap.
   if (!unlocked.has('apex-predator')) {
     const hardCount = await countLikedAtDifficulty(userId, ['hard', 'legendary']);
     if (hardCount >= 10) candidates.push('apex-predator');
   }
 
-  // 4. Comeback.
   if (ctx.wasPreviouslyFled) candidates.push('comeback');
 
-  // 5. Time-of-day (uses the server clock, not the client's).
+  // Time-of-day uses the server clock.
   const hour = ctx.catchTime.getHours();
   if (hour >= 0 && hour < 4) candidates.push('night-owl');
   if (hour >= 0 && hour < 7) candidates.push('early-bird');
 
-  // 6. Rainbow trainer — caught at least one of every available type
-  // (filtered to types that exist in the user's selected regions).
+  // Rainbow trainer — one of every type available in the user's selected regions.
   if (!unlocked.has('rainbow-trainer')) {
     const isRainbow = await checkRainbowTrainer(userId, ctx.preference);
     if (isRainbow) candidates.push('rainbow-trainer');
   }
 
-  // 7. Region & type completion (dynamic IDs).
+  // Region & type completion (dynamic IDs).
   const completion = await evaluateCompletion(userId, ctx.preference, unlocked);
   candidates.push(...completion);
 
-  // Filter to *newly* unlocked.
   const newly = candidates.filter((id) => !unlocked.has(id));
-  // De-dupe (a single catch can in theory match multiple thresholds).
+  // Dedupe: a single catch can match multiple thresholds.
   const unique = Array.from(new Set(newly));
   await award(userId, unique);
   return unique;
 }
 
-/**
- * Evaluate achievements that fire on a *failed* catch (the Pokémon fled).
- */
+/** Evaluate achievements on a failed catch (fled). */
 export async function evaluateOnFlee(
   userId: string,
   _ctx: FleeEvalContext,
@@ -131,9 +118,7 @@ export async function evaluateOnFlee(
   return newly;
 }
 
-/**
- * Evaluate achievements that fire on a pass / dislike.
- */
+/** Evaluate achievements on a pass/dislike. */
 export async function evaluateOnPass(
   userId: string,
   _ctx: PassEvalContext,
@@ -141,10 +126,9 @@ export async function evaluateOnPass(
   const unlocked = await loadUnlocked(userId);
   const newly: string[] = [];
   if (!unlocked.has('first-pass')) {
-    // "Picky Trainer" fires when this pass is the user's *first* choice of
-    // the calendar day (server timezone). The current pass has already been
-    // upserted by choices.ts, so there's exactly 1 row today iff this is
-    // the first action today.
+    // Picky Trainer: pass is the first choice of the calendar day (server tz).
+    // The current pass is already upserted by choices.ts, so today's count == 1
+    // means this is the first action today.
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
     const todayCount = await prisma.pokemonChoice.count({
@@ -199,8 +183,7 @@ async function countLikedAtDifficulty(
       const summary = await getPokemonSummary(row.pokemonId);
       if (wanted.has(getDifficultyBucket(summary.baseExperience))) n++;
     } catch {
-      // Pokémon summaries can occasionally fail to resolve — don't let that
-      // crash achievement evaluation.
+      // Skip unresolved summaries rather than failing the whole evaluation.
     }
   }
   return n;
@@ -210,8 +193,7 @@ async function checkRainbowTrainer(
   userId: string,
   pref: { regions: string[]; types: string[] },
 ): Promise<boolean> {
-  // Build the type universe = all types that exist in the user's selected
-  // regions (since they can only catch from those regions).
+  // Type universe = all types present in the user's selected regions.
   const [allTypesRaw, ...regionLists] = await Promise.all([
     listTypes(),
     ...pref.regions.map((r) => listSpeciesInRegionByType(r, [])),
@@ -222,12 +204,10 @@ async function checkRainbowTrainer(
       for (const t of sp.types) universe.add(t);
     }
   }
-  // Cap to the canonical type list so weird PokéAPI responses don't
-  // accidentally make Rainbow Trainer impossible.
+  // Intersect with the canonical type list so odd PokéAPI entries can't make it impossible.
   const canonical = new Set(allTypesRaw.map((t) => t.name));
   const required = new Set([...universe].filter((t) => canonical.has(t)));
 
-  // Now figure out which types the user has caught.
   const liked = await prisma.pokemonChoice.findMany({
     where: { userId, choice: 'like' },
     select: { pokemonId: true },
@@ -248,9 +228,8 @@ async function checkRainbowTrainer(
 }
 
 /**
- * Awards region-complete achievements (scoped to the user's selected regions)
- * and type-complete achievements (global — every Pokémon of that type across
- * ALL regions, regardless of what the user has selected).
+ * Awards region-complete (scoped to selected regions) and type-complete
+ * (global — every Pokémon of that type across all regions) achievements.
  */
 async function evaluateCompletion(
   userId: string,
@@ -265,7 +244,7 @@ async function evaluateCompletion(
   });
   const likedIds = new Set(liked.map((l) => l.pokemonId));
 
-  // Region completion — still scoped to the user's selected regions.
+  // Region completion — scoped to selected regions.
   const selectedRegionLists = await Promise.all(
     pref.regions.map((r) =>
       listSpeciesInRegionByType(r, []).then((list) => ({ region: r, list })),
@@ -278,7 +257,7 @@ async function evaluateCompletion(
     if (list.every((sp) => likedIds.has(sp.id))) newly.push(id);
   }
 
-  // Type completion — global: every Pokémon of that type in any region.
+  // Type completion — global across every region.
   const allRegions = await listRegions();
   const allRegionLists = await Promise.all(
     allRegions.map((r) => listSpeciesInRegionByType(r.name, [])),

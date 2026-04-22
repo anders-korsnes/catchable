@@ -1,22 +1,18 @@
-// Maps Pokémon types to the closest matching Chuck Norris joke category.
-// Chuck Norris API has a fixed set of categories; the most thematically adjacent
-// one is used per type. Multiple types may collapse to the same category.
-// Update this table if the Chuck Norris API adds new categories.
+// Pokémon type → Chuck Norris joke category. Types without a mapping fall
+// back to a random joke at runtime.
 //
-// Available Chuck Norris categories (as of writing):
+// Chuck Norris categories (current):
 //   animal, career, celebrity, dev, explicit, fashion, food, history,
 //   money, movie, music, political, religion, science, sport, travel
-//
-// Types with no obvious mapping fall back to a random joke at runtime.
 export const TYPE_TO_JOKE_CATEGORY: Readonly<Record<string, string>> = Object.freeze({
-  // Combat / strength → sport
+  // Combat / strength
   fighting: 'sport',
   rock: 'sport',
   steel: 'sport',
   // Animal kingdom
   bug: 'animal',
   flying: 'animal',
-  // "Tech" / unknown forces → dev (Chuck breaking compilers and laws of physics)
+  // Tech / unknown forces
   electric: 'dev',
   psychic: 'dev',
   // Otherworldly
@@ -31,7 +27,6 @@ export const TYPE_TO_JOKE_CATEGORY: Readonly<Record<string, string>> = Object.fr
   grass: 'food',
   poison: 'food',
   fire: 'celebrity',
-  // Default-ish — Normal types are the everyman, give them money jokes
   normal: 'money',
 });
 

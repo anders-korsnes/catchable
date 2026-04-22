@@ -18,8 +18,7 @@ export const deckRouter = Router();
 
 deckRouter.use(requireAuth);
 
-// Pokémon that fled from the catch minigame stay out of the deck for this
-// long, after which they re-enter the candidate pool.
+// Fled Pokémon are excluded from the deck for this long, then re-enter.
 const FLED_COOLDOWN_MS = 5 * 60 * 1000;
 
 deckRouter.get(
@@ -35,12 +34,8 @@ deckRouter.get(
     const types = decodeTypes(pref.types);
     const difficulties = decodeDifficulties(pref.difficulties);
 
-    // Pull candidate species lists from PokéAPI for every selected region
-    // (cached) plus the user's already-decided pokemon from the DB. Then merge
-    // the regional rosters (deduped by species id, preserving region order)
-    // and find the first candidate the user hasn't seen.
-    // 'fled' pokemon are excluded for FLED_COOLDOWN_MS; everything else
-    // (likes/dislikes) is excluded forever.
+    // Pull cached region rosters + the user's decided set. Likes/dislikes are
+    // excluded forever; 'fled' is excluded for FLED_COOLDOWN_MS.
     const cooldownStart = new Date(Date.now() - FLED_COOLDOWN_MS);
     const [perRegion, decided] = await Promise.all([
       Promise.all(regions.map((r) => listSpeciesInRegionByType(r, types))),
@@ -78,7 +73,7 @@ deckRouter.get(
       }
     }
 
-    // Fisher-Yates shuffle so the deck order is completely random each time.
+    // Fisher-Yates shuffle.
     for (let i = candidates.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
@@ -99,7 +94,7 @@ deckRouter.get(
       getJokeForTypes(next.types),
     ]);
 
-    // Log the full raw PokéAPI data for the Pokémon being served (fire & forget).
+    // Fire-and-forget: log the raw PokéAPI payload for the served Pokémon.
     getRawPokemonData(next.id).then((raw) => {
       if (raw) {
         console.log(`\n[deck] Raw PokéAPI data for #${next.id} (${next.name}):`);

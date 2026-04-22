@@ -52,7 +52,7 @@ authRouter.post(
 authRouter.post(
   '/login',
   asyncHandler(async (req, res) => {
-    // Permissive parse — avoids leaking which field was invalid.
+    // safeParse so we don't leak which field was invalid.
     const parsed = credentialsSchema.safeParse(req.body);
     if (!parsed.success) {
       throw badRequest('INVALID_CREDENTIALS', 'Invalid username or password');
@@ -60,7 +60,7 @@ authRouter.post(
     const { username, password } = parsed.data;
 
     const user = await prisma.user.findUnique({ where: { username } });
-    // Same error for wrong username and wrong password — avoids leaking which usernames exist.
+    // Same error for wrong username or wrong password — don't leak which usernames exist.
     if (!user || !(await verifyPassword(password, user.passwordHash))) {
       throw unauthorized('INVALID_CREDENTIALS', 'Invalid username or password');
     }
@@ -85,7 +85,7 @@ authRouter.get(
       select: { id: true, username: true },
     });
     if (!user) {
-      // Token is valid but the user no longer exists — clear the stale cookie.
+      // Valid token, deleted user — clear the stale cookie.
       clearAuthCookie(res);
       throw unauthorized('USER_NOT_FOUND', 'Your account is no longer available');
     }

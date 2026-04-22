@@ -1,14 +1,11 @@
 /**
  * Server-side mirror of the client's catch-difficulty tiers.
+ * Keep in sync with `client/src/lib/catch-difficulty.ts`.
  *
- * Both layers must agree on what "Hard" means so achievement evaluation
- * matches what the player actually saw in the minigame. Keep the tier
- * thresholds here in sync with `client/src/lib/catch-difficulty.ts`.
- *
- *   exp <  100   →  easy
- *   100 ≤ exp < 200 →  medium
- *   200 ≤ exp < 250 →  hard
- *   exp ≥ 250   →  legendary
+ *   exp <  100       → easy
+ *   100 ≤ exp < 200  → medium
+ *   200 ≤ exp < 250  → hard
+ *   exp ≥ 250        → legendary
  */
 
 export type Difficulty = 'easy' | 'medium' | 'hard' | 'legendary';

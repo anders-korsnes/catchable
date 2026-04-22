@@ -1,6 +1,5 @@
-// SQLite has no JSON column type via Prisma's SQLite provider, so list-valued
-// preference fields (regions, types) are stored as comma-separated strings.
-// Encoding/decoding is centralized here to keep it consistent across routes.
+// SQLite (via Prisma) has no JSON column type. List-valued preferences
+// (regions, types) are stored as comma-separated strings — encoding lives here.
 
 function encodeList(values: string[]): string {
   return Array.from(
@@ -26,8 +25,7 @@ export function encodeDifficulties(values: string[]): string {
   const kept = Array.from(
     new Set(values.map((v) => v.toLowerCase().trim()).filter((v) => valid.has(v))),
   );
-  // If the user picked every tier, collapse to "" so the deck filter
-  // treats it as "no filter" (same as not picking anything).
+  // All tiers selected collapses to "" (treated as no filter by the deck loader).
   if (kept.length === ALL_DIFFICULTIES.length) return '';
   return kept.join(',');
 }

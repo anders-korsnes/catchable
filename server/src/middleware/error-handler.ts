@@ -2,8 +2,7 @@ import type { ErrorRequestHandler, RequestHandler } from 'express';
 import { ZodError } from 'zod';
 import { HttpError } from '../lib/errors.js';
 
-// Wrap async handlers so a thrown/rejected error reaches errorHandler instead of
-// crashing the process. Express 4 doesn't await handler promises on its own.
+// Express 4 does not await handler promises; this wrapper forwards rejections to errorHandler.
 export const asyncHandler =
   <T extends RequestHandler>(handler: T): RequestHandler =>
   (req, res, next) => {

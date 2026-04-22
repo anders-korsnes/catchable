@@ -1,6 +1,4 @@
 // Extracted from the deck route so it can be unit-tested without the DB or PokéAPI.
-// `candidates` is the ordered list of Pokémon the user's filters allow; `decided`
-// is the set of Pokémon ids the user has already liked or disliked.
 
 interface Candidate {
   id: number;

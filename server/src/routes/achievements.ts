@@ -14,11 +14,8 @@ export const achievementsRouter = Router();
 achievementsRouter.use(requireAuth);
 
 /**
- * Returns every achievement the player can see, plus their unlock state.
- *
- * Hidden achievements are stripped to a minimal placeholder when locked, so
- * the front-end can show a "?? Locked secret achievement ??" tile without
- * giving away the title or description.
+ * Returns every achievement plus unlock state.
+ * Hidden + locked entries are replaced with a placeholder so title/description aren't leaked.
  */
 achievementsRouter.get(
   '/',

@@ -6,7 +6,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Modern UI base
+        // UI base
         bg: { DEFAULT: '#F5F5F4', dark: '#0C0A09' },
         surface: { DEFAULT: '#FFFFFF', dark: '#1C1917' },
         ink: { DEFAULT: '#1C1917', muted: '#78716C', invert: '#F5F5F4' },
@@ -23,7 +23,7 @@ const config: Config = {
         like: '#10B981',
         dislike: '#71717A',
         warn: '#F59E0B',
-        // Canonical Pokémon type colors
+        // Pokémon type colors
         type: {
           normal: '#A8A77A',
           fire: '#EE8130',

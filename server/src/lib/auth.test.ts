@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-// Auth helpers read JWT_SECRET at import-time via env validation, so set test
-// values before importing. Vitest gives each test file its own module graph.
+// Auth helpers read JWT_SECRET at import time via env validation — set test
+// values before importing.
 beforeAll(() => {
   process.env.JWT_SECRET = 'test-secret-please-do-not-use-in-prod';
   process.env.DATABASE_URL = 'file:./test.db';

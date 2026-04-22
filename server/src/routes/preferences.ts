@@ -19,7 +19,7 @@ preferencesRouter.use(requireAuth);
 const upsertSchema = z.object({
   regions: z.array(z.string().trim().min(1)).min(1, 'Pick at least one region'),
   types: z.array(z.string().trim().min(1)).min(1, 'Pick at least one type'),
-  // Optional: empty array (or omitted) means "all difficulties".
+  // Empty array / omitted = all difficulties.
   difficulties: z
     .array(z.enum(['easy', 'medium', 'hard', 'legendary']))
     .optional()

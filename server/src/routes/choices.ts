@@ -25,26 +25,24 @@ choicesRouter.use(requireAuth);
 
 const choiceSchema = z.object({
   pokemonId: z.number().int().positive(),
-  // 'fled' is a transient choice — see deck.ts for the 5-minute cooldown.
+  // 'fled' is transient — see deck.ts for the 5-minute cooldown.
   choice: z.enum(['like', 'dislike', 'fled']),
 });
 
-// POST / — records a swipe result and returns any newly unlocked achievements.
-// Handles all three choice types: 'like', 'dislike', 'fled'.
+// POST / — record a swipe (like/dislike/fled), return newly unlocked achievements.
 choicesRouter.post(
   '/',
   asyncHandler(async (req, res) => {
     const userId = req.user!.id;
     const { pokemonId, choice } = choiceSchema.parse(req.body);
 
-    // Read the previous record before upserting to detect the fled → caught case.
+    // Detect fled → caught before upserting.
     const previous = await prisma.pokemonChoice.findUnique({
       where: { userId_pokemonId: { userId, pokemonId } },
     });
     const wasPreviouslyFled = previous?.choice === 'fled';
 
-    // Re-recording 'fled' on the same pokemon should reset the cooldown
-    // window — upsert with `update.createdAt = now()` handles that.
+    // Re-recording 'fled' resets the cooldown via update.createdAt = now().
     await prisma.pokemonChoice.upsert({
       where: { userId_pokemonId: { userId, pokemonId } },
       update: { choice, createdAt: new Date() },
@@ -61,7 +59,7 @@ choicesRouter.post(
       try {
         summary = await getPokemonSummary(pokemonId);
       } catch {
-        // PokéAPI unavailable — catch is still recorded, difficulty evaluation skipped.
+        // PokéAPI unavailable: catch is recorded, difficulty evaluation skipped.
       }
       newlyUnlocked = await evaluateOnCatch(userId, {
         pokemonId,
@@ -102,9 +100,8 @@ choicesRouter.get(
     const userRegions = pref ? decodeRegions(pref.regions) : [];
     const userTypes = pref ? decodeTypes(pref.types) : [];
 
-    // Build a pokemonId → region[] map from EVERY region (no type filter) so
-    // caught Pokémon always appear in their real region group, even if the user
-    // has since deselected that region in their preferences.
+    // Map pokemonId → region[] across ALL regions (no type filter) so caught
+    // Pokémon still appear in their real region group after the user deselects it.
     const allRegions = await listRegions();
     const idToRegions = new Map<number, string[]>();
     await Promise.all(
@@ -118,9 +115,8 @@ choicesRouter.get(
       }),
     );
 
-    // Full ID list per user-selected region (filtered by type prefs). Clients use
-    // this both for the "X / total" counter *and* to render "still missing"
-    // placeholder tiles for Pokémon that haven't been caught yet.
+    // Full ID list per selected region (filtered by type prefs). Drives the
+    // "X / total" counter and the "still missing" placeholder tiles.
     const regionIds: Record<string, number[]> = {};
     await Promise.all(
       userRegions.map(async (region) => {
@@ -167,13 +163,12 @@ choicesRouter.delete(
 // ---------------------------------------------------------------------------
 
 /**
- * Hydrate a list of achievement IDs to the same shape `/api/achievements`
- * returns, so the client can show the unlock toast without a second
- * round-trip. Dynamic IDs are reconstructed from their structured pieces.
+ * Hydrate achievement IDs to the same shape as `/api/achievements` so the
+ * client can render the unlock toast without a second round-trip.
  */
 function hydrateAchievements(ids: string[]): UnlockedAchievement[] {
   if (ids.length === 0) return [];
-  // Build a lookup of static defs and dynamic defs reconstructed from the id.
+  // Lookup of static defs + dynamic defs reconstructed from the id.
   const byId = new Map<string, AchievementDef>();
   for (const def of STATIC_ACHIEVEMENTS) byId.set(def.id, def);
 

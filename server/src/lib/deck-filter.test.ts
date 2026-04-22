@@ -17,7 +17,7 @@ describe('pickNextCandidate', () => {
     expect(pickNextCandidate(candidates, [1])?.id).toBe(4);
   });
 
-  it('skips Pokémon the user has already disliked — they never reappear', () => {
+  it('skips disliked Pokémon — they never reappear', () => {
     expect(pickNextCandidate(candidates, [1, 4])?.id).toBe(7);
   });
 
@@ -25,7 +25,7 @@ describe('pickNextCandidate', () => {
     expect(pickNextCandidate(candidates, [1, 4, 7, 25])).toBeNull();
   });
 
-  it('preserves candidate order — first not-seen wins', () => {
+  it('preserves candidate order (first not-seen wins)', () => {
     expect(pickNextCandidate(candidates, [4, 25])?.id).toBe(1);
   });
 });

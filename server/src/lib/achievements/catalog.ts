@@ -1,12 +1,8 @@
-// Achievement definitions live in code rather than the database so the list
-// can change without schema migrations. The `user_achievements` table only
-// stores which IDs a given user has unlocked.
-//
-// IDs are stable strings — renaming one drops all existing unlocks for it.
-//
-//   Static   — fixed id known at build time.
-//   Dynamic  — generated per region/type at request time, e.g. `region-complete:kanto`.
-//              Produced by `dynamicAchievementsFor()` from PokéAPI's region/type lists.
+// Achievement definitions live in code; `user_achievements` stores only unlocked IDs.
+// IDs are stable strings — renaming drops existing unlocks.
+//   Static  — fixed id known at build time.
+//   Dynamic — generated per region/type at request time (e.g. `region-complete:kanto`)
+//             via `dynamicAchievementsFor()`.
 
 export type AchievementCategory =
   | 'progression'
@@ -19,11 +15,10 @@ export interface AchievementDef {
   title: string;
   description: string;
   category: AchievementCategory;
-  /** Hidden achievements are not shown in the locked list — the player
-   * only sees them once unlocked, with title + description revealed. */
+  /** Hidden until unlocked — shown as a placeholder in the locked list. */
   hidden?: boolean;
   icon: string;
-  /** A coarse "weight" used purely for sorting in the UI. */
+  /** Sort weight for the UI. */
   order: number;
 }
 
@@ -32,7 +27,7 @@ export interface AchievementDef {
 // ---------------------------------------------------------------------------
 
 export const STATIC_ACHIEVEMENTS: AchievementDef[] = [
-  // Progression — catch counts.
+  // Catch counts
   { id: 'first-catch', icon: '⭐', title: "Gotta Catch 'Em", description: 'Caught your very first Pokémon.', category: 'progression', order: 1 },
   { id: 'catches-5', icon: '🎒', title: 'Rookie Trainer', description: 'Caught 5 Pokémon.', category: 'progression', order: 2 },
   { id: 'catches-10', icon: '📜', title: 'Apprentice', description: 'Caught 10 Pokémon.', category: 'progression', order: 3 },
@@ -42,14 +37,14 @@ export const STATIC_ACHIEVEMENTS: AchievementDef[] = [
   { id: 'catches-500', icon: '👑', title: 'Pokémon Master', description: 'Caught 500 Pokémon.', category: 'progression', order: 7 },
   { id: 'catches-1000', icon: '🌟', title: 'Pokémon Legend', description: 'Caught 1000 Pokémon. Truly the very best.', category: 'progression', order: 8 },
 
-  // Difficulty — first of each tier.
+  // First of each difficulty tier
   { id: 'easy-catch', icon: '🟢', title: "Beginner's Luck", description: 'Caught an Easy-difficulty Pokémon.', category: 'difficulty', order: 10 },
   { id: 'medium-catch', icon: '🟡', title: 'Skilled Hand', description: 'Caught a Medium-difficulty Pokémon.', category: 'difficulty', order: 11 },
   { id: 'hard-catch', icon: '🟠', title: 'Big Game Hunter', description: 'Caught a Hard-difficulty Pokémon.', category: 'difficulty', order: 12 },
   { id: 'legendary-catch', icon: '🔴', title: 'Legend Slayer', description: 'Caught a Legendary-difficulty Pokémon.', category: 'difficulty', order: 13 },
   { id: 'apex-predator', icon: '⚔️', title: 'Apex Predator', description: 'Caught 10 Hard-or-Legendary Pokémon.', category: 'difficulty', order: 14, hidden: true },
 
-  // Special / hidden — niche moments.
+  // Special / hidden
   { id: 'first-flee', icon: '💨', title: 'It Got Away', description: 'A Pokémon fled from your Poké Ball.', category: 'special', order: 20, hidden: true },
   { id: 'comeback', icon: '🔁', title: 'Persistence Pays', description: 'Caught a Pokémon after it fled from a previous attempt.', category: 'special', order: 21, hidden: true },
   { id: 'night-owl', icon: '🦉', title: 'Night Owl', description: 'Caught a Pokémon between midnight and 4 AM.', category: 'special', order: 22, hidden: true },
