@@ -46,6 +46,15 @@ export function SwipePage() {
 function SwipeDeckView() {
   const { data: prefs, isLoading: prefsLoading } = usePreferences();
   const [toasts, setToasts] = useState<UnlockedAchievement[]>([]);
+  const toastTimersRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+
+  useEffect(() => {
+    const timers = toastTimersRef.current;
+    return () => {
+      for (const t of timers) clearTimeout(t);
+      timers.clear();
+    };
+  }, []);
 
   const handleAchievements = useCallback((items: UnlockedAchievement[]) => {
     setToasts((prev) => {
@@ -54,9 +63,11 @@ function SwipeDeckView() {
       return merged.slice(-3);
     });
     for (const item of items) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
+        toastTimersRef.current.delete(timer);
         setToasts((prev) => prev.filter((a) => a.id !== item.id));
       }, TOAST_DISMISS_MS);
+      toastTimersRef.current.add(timer);
     }
   }, []);
 

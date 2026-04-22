@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { api, ApiError } from '../lib/api';
 import type { ChoiceResponse, DeckResponse, UnlockedAchievement } from '../lib/types';
@@ -25,13 +25,17 @@ interface UseDeckOptions {
 export function useDeck({ enabled = true, onAchievementsUnlocked }: UseDeckOptions = {}) {
   const queryClient = useQueryClient();
   const [state, setState] = useState<DeckState>({ current: null, loading: enabled, error: null });
+  const requestIdRef = useRef(0);
 
   const loadNext = useCallback(async () => {
+    const id = ++requestIdRef.current;
     setState((s) => ({ ...s, loading: true, error: null }));
     try {
       const next = await api.get<DeckResponse>('/api/deck/next');
+      if (id !== requestIdRef.current) return;
       setState({ current: next, loading: false, error: null });
     } catch (err) {
+      if (id !== requestIdRef.current) return;
       const message = err instanceof ApiError ? err.message : 'Could not load the next card.';
       setState({ current: null, loading: false, error: message });
     }

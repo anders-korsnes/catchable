@@ -30,6 +30,13 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     return;
   }
 
+  if (err instanceof SyntaxError && 'body' in err) {
+    res.status(400).json({
+      error: { code: 'INVALID_JSON', message: 'Request body is not valid JSON' },
+    });
+    return;
+  }
+
   console.error('[error]', err);
   res.status(500).json({
     error: { code: 'INTERNAL_ERROR', message: 'Something went wrong on our end' },

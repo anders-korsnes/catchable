@@ -11,6 +11,7 @@ import {
 import { asyncHandler } from '../middleware/error-handler.js';
 import { requireAuth } from '../middleware/require-auth.js';
 import { badRequest, conflict, unauthorized } from '../lib/errors.js';
+import { Prisma } from '@prisma/client';
 
 export const authRouter = Router();
 
@@ -32,16 +33,19 @@ authRouter.post(
   asyncHandler(async (req, res) => {
     const { username, password } = credentialsSchema.parse(req.body);
 
-    const existing = await prisma.user.findUnique({ where: { username } });
-    if (existing) {
-      throw conflict('USERNAME_TAKEN', 'That username is already taken');
-    }
-
     const passwordHash = await hashPassword(password);
-    const user = await prisma.user.create({
-      data: { username, passwordHash },
-      select: { id: true, username: true },
-    });
+    let user: { id: string; username: string };
+    try {
+      user = await prisma.user.create({
+        data: { username, passwordHash },
+        select: { id: true, username: true },
+      });
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+        throw conflict('USERNAME_TAKEN', 'That username is already taken');
+      }
+      throw err;
+    }
 
     const token = signToken({ sub: user.id, username: user.username });
     setAuthCookie(res, token);

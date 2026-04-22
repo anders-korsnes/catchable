@@ -92,14 +92,15 @@ deckRouter.get(
       getJokeForTypes(next.types),
     ]);
 
-    // Fire-and-forget: log the raw PokéAPI payload for the served Pokémon.
-    getRawPokemonData(next.id).then((raw) => {
-      if (raw) {
-        console.log(`\n[deck] Raw PokéAPI data for #${next.id} (${next.name}):`);
-        console.log(JSON.stringify(raw, null, 2));
-        console.log(`[deck] ─── end #${next.id} ───\n`);
-      }
-    }).catch(() => {});
+    if (process.env.NODE_ENV === 'development') {
+      getRawPokemonData(next.id).then((raw) => {
+        if (raw) {
+          console.log(`\n[deck] Raw PokéAPI data for #${next.id} (${next.name}):`);
+          console.log(JSON.stringify(raw, null, 2));
+          console.log(`[deck] ─── end #${next.id} ───\n`);
+        }
+      }).catch(() => {});
+    }
 
     res.json({
       pokemon: {

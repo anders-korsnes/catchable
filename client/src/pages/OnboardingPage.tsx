@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRegions, useTypes } from '../hooks/usePokemonReference';
 import { usePreferences, useSavePreferences } from '../hooks/usePreferences';
@@ -23,14 +23,15 @@ export function OnboardingPage() {
   const [regions, setRegions] = useState<Set<string>>(new Set());
   const [types, setTypes] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const hasSeeded = useRef(false);
 
-  // Seed from existing prefs when re-running the wizard.
+  // Seed from existing prefs once when re-running the wizard.
   useEffect(() => {
-    if (prefsQuery.data && regions.size === 0 && types.size === 0) {
-      setRegions(new Set(prefsQuery.data.regions));
-      setTypes(new Set(prefsQuery.data.types));
-    }
-  }, [prefsQuery.data, regions.size, types.size]);
+    if (hasSeeded.current || !prefsQuery.data) return;
+    hasSeeded.current = true;
+    setRegions(new Set(prefsQuery.data.regions));
+    setTypes(new Set(prefsQuery.data.types));
+  }, [prefsQuery.data]);
 
   const sortedTypes = useMemo(
     () => (typesQuery.data ? [...typesQuery.data].sort((a, b) => a.name.localeCompare(b.name)) : []),

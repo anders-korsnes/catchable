@@ -27,10 +27,7 @@ export function useSavePreferences() {
       api.put<{ preferences: Preferences }>('/api/preferences', input).then((r) => r.preferences),
     onSuccess: (preferences) => {
       queryClient.setQueryData(QUERY_KEY, preferences);
-      // Invalidate so the next read refetches.
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      // Filter change invalidates the deck.
-      queryClient.invalidateQueries({ queryKey: ['deck'] });
     },
   });
 }

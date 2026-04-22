@@ -41,6 +41,9 @@ export function PendulumMinigame({ pokemon, onResult }: MinigameProps) {
   const isThrowingRef = useRef(false);
   const runningRef = useRef(true);
   const phaseRef = useRef(Math.random() * Math.PI * 2);
+  const resultTimerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => () => clearTimeout(resultTimerRef.current), []);
 
   useEffect(() => {
     let frame = 0;
@@ -78,10 +81,10 @@ export function PendulumMinigame({ pokemon, onResult }: MinigameProps) {
     const hit = Math.abs(angleDeg) <= tuning.zoneDeg;
     if (hit) {
       setFeedback('hit');
-      setTimeout(() => onResult('caught'), FLASH_MS);
+      resultTimerRef.current = setTimeout(() => onResult('caught'), FLASH_MS);
     } else {
       setFeedback('miss');
-      setTimeout(() => onResult('fled'), MISS_FLASH_MS);
+      resultTimerRef.current = setTimeout(() => onResult('fled'), MISS_FLASH_MS);
     }
   };
 

@@ -43,7 +43,7 @@ export function RegisterPage() {
 
     setSubmitting(true);
     try {
-      await register(username, password);
+      await register(parsed.data.username, parsed.data.password);
       navigate('/onboarding', { replace: true });
     } catch (err) {
       const message =

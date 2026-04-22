@@ -105,7 +105,8 @@ async function fetchJson<T>(path: string, schema: z.ZodType<T>): Promise<T> {
   try {
     res = await fetch(url);
   } catch (err) {
-    throw upstream('POKEAPI_UNREACHABLE', `Could not reach PokéAPI: ${(err as Error).message}`);
+    const msg = err instanceof Error ? err.message : String(err);
+    throw upstream('POKEAPI_UNREACHABLE', `Could not reach PokéAPI: ${msg}`);
   }
   if (!res.ok) {
     throw upstream('POKEAPI_BAD_STATUS', `PokéAPI returned ${res.status} for ${path}`);

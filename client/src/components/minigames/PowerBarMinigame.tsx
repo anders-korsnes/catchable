@@ -35,6 +35,9 @@ export function PowerBarMinigame({ pokemon, onResult }: MinigameProps) {
   const pctRef = useRef(0);
   const isThrowingRef = useRef(false);
   const runningRef = useRef(true);
+  const resultTimerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => () => clearTimeout(resultTimerRef.current), []);
 
   const trackX = INSET;
   const trackW = BAR_W - INSET * 2;
@@ -92,10 +95,10 @@ export function PowerBarMinigame({ pokemon, onResult }: MinigameProps) {
     const hit = pct >= 100 - zonePct && pct <= 100;
     if (hit) {
       setFeedback('hit');
-      setTimeout(() => onResult('caught'), FLASH_MS);
+      resultTimerRef.current = setTimeout(() => onResult('caught'), FLASH_MS);
     } else {
       setFeedback('miss');
-      setTimeout(() => onResult('fled'), MISS_FLASH_MS);
+      resultTimerRef.current = setTimeout(() => onResult('fled'), MISS_FLASH_MS);
     }
   };
 

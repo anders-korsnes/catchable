@@ -50,6 +50,9 @@ export function BullseyeMinigame({ pokemon, onResult }: MinigameProps) {
   const posRef = useRef({ x: CENTER, y: CENTER });
   const isThrowingRef = useRef(false);
   const runningRef = useRef(true);
+  const resultTimerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => () => clearTimeout(resultTimerRef.current), []);
 
   const phasesRef = useRef({
     px1: Math.random() * Math.PI * 2,
@@ -118,10 +121,10 @@ export function BullseyeMinigame({ pokemon, onResult }: MinigameProps) {
     const hit = dist - HALF_MARKER <= tuning.hitRadius;
     if (hit) {
       setFeedback('hit');
-      setTimeout(() => onResult('caught'), FLASH_MS);
+      resultTimerRef.current = setTimeout(() => onResult('caught'), FLASH_MS);
     } else {
       setFeedback('miss');
-      setTimeout(() => onResult('fled'), MISS_FLASH_MS);
+      resultTimerRef.current = setTimeout(() => onResult('fled'), MISS_FLASH_MS);
     }
   };
 

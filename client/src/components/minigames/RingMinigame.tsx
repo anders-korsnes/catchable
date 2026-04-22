@@ -23,6 +23,9 @@ export function RingMinigame({ pokemon, onResult }: MinigameProps) {
   const angleRef = useRef(0);
   const isThrowingRef = useRef(false);
   const runningRef = useRef(true);
+  const resultTimerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => () => clearTimeout(resultTimerRef.current), []);
 
   useEffect(() => {
     let frame = 0;
@@ -56,10 +59,10 @@ export function RingMinigame({ pokemon, onResult }: MinigameProps) {
     const hit = delta <= arcSize;
     if (hit) {
       setFeedback('hit');
-      setTimeout(() => onResult('caught'), FLASH_MS);
+      resultTimerRef.current = setTimeout(() => onResult('caught'), FLASH_MS);
     } else {
       setFeedback('miss');
-      setTimeout(() => onResult('fled'), MISS_FLASH_MS);
+      resultTimerRef.current = setTimeout(() => onResult('fled'), MISS_FLASH_MS);
     }
   };
 
