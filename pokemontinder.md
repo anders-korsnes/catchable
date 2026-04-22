@@ -11,7 +11,7 @@
 
 ### Description
 
-A playful web app that presents Pokémon one at a time in a swipe-style interface. Each Pokémon gets a randomized human name (e.g. "Josh the Charmander"), basic stats, and a Chuck Norris joke themed to its type. Users create an account, filter by region and type, like or dislike Pokémon, and revisit their liked ones in a dedicated view. Disliked Pokémon never reappear.
+A playful web app that presents Pokémon one at a time in a swipe-style interface. Each Pokémon gets a randomized human name (e.g. "Josh the Charmander"), basic stats, and a Chuck Norris joke themed to its type. Users create an account, filter by region and type, like or dislike Pokémon, and revisit their liked ones in a dedicated view. Skipped Pokémon can reappear later in the deck.
 
 ### Goals
 
@@ -444,7 +444,7 @@ pokemon_choices
 
 - At minimum, test the joke-matching logic (pure function — easy win)
 - Test auth flows (register, login, protected route access)
-- Test that disliked/liked Pokémon are correctly excluded from the deck
+- Test that liked Pokémon are correctly excluded from the deck
 - Use Vitest or Jest — whichever fits the framework
 
 ---
@@ -462,7 +462,7 @@ Before considering the project done, verify:
 - [ ] No console errors or warnings in normal use
 - [ ] Forms validate input and show clear feedback
 - [ ] Loading and empty states are handled (deck empty, no liked Pokémon, API down)
-- [ ] Disliked Pokémon never reappear; liked Pokémon don't reappear in the deck
+- [ ] Skipped Pokémon can reappear; liked Pokémon don't reappear in the deck
 - [ ] Joke-to-type matching works, with a documented fallback to random
 - [ ] Accessibility checks pass (keyboard, contrast, semantics)
 - [ ] Code is formatted and linted, no warnings

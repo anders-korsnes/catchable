@@ -66,10 +66,6 @@ export function typeAchievementId(type: string): string {
   return `type-complete:${type}`;
 }
 
-export function typeRegionAchievementId(type: string, region: string): string {
-  return `type-region-complete:${type}:${region}`;
-}
-
 export function dynamicAchievementsFor(
   regions: readonly string[],
   types: readonly string[],

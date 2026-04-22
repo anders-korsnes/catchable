@@ -34,8 +34,6 @@ deckRouter.get(
     const types = decodeTypes(pref.types);
     const difficulties = decodeDifficulties(pref.difficulties);
 
-    // Pull cached region rosters + the user's decided set. Likes/dislikes are
-    // excluded forever; 'fled' is excluded for FLED_COOLDOWN_MS.
     const cooldownStart = new Date(Date.now() - FLED_COOLDOWN_MS);
     const [perRegion, decided] = await Promise.all([
       Promise.all(regions.map((r) => listSpeciesInRegionByType(r, types))),
@@ -43,7 +41,7 @@ deckRouter.get(
         where: {
           userId,
           OR: [
-            { choice: { in: ['like', 'dislike'] } },
+            { choice: 'like' },
             { choice: 'fled', createdAt: { gt: cooldownStart } },
           ],
         },

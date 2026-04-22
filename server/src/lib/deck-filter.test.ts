@@ -17,7 +17,7 @@ describe('pickNextCandidate', () => {
     expect(pickNextCandidate(candidates, [1])?.id).toBe(4);
   });
 
-  it('skips disliked Pokémon — they never reappear', () => {
+  it('skips Pokémon whose ids are in the decided set', () => {
     expect(pickNextCandidate(candidates, [1, 4])?.id).toBe(7);
   });
 
