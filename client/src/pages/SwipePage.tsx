@@ -72,7 +72,10 @@ function SwipeDeckView() {
   const [minigameOpen, setMinigameOpen] = useState(false);
   const [postCatchStage, setPostCatchStage] = useState<PostCatchStage | null>(null);
   // Snapshot of the just-caught Pokémon; keeps the UI stable while `current` advances.
-  const [caughtCard, setCaughtCard] = useState<{ pokemon: PokemonSummary; joke: Joke | undefined } | null>(null);
+  const [caughtCard, setCaughtCard] = useState<{
+    pokemon: PokemonSummary;
+    joke: Joke | undefined;
+  } | null>(null);
   const [fledMessage, setFledMessage] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
   // Scope for the store animation.
@@ -257,10 +260,11 @@ function SwipeDeckView() {
 
   const isSwiping = !!swipeDirection;
   const isShowingFledMessage = !!fledMessage;
-  // Hide the live card while the caught snapshot is showing.
   const isShowingCaughtCard = !!postCatchStage && !!caughtCard;
   const isLiveCardVisible =
     !isSwiping && !isShowingFledMessage && !isShowingCaughtCard && !!current?.pokemon;
+  const showTransitionLoader =
+    (isSwiping || isShowingFledMessage) && !isShowingCaughtCard && !minigameOpen;
 
   return (
     <section
@@ -308,23 +312,22 @@ function SwipeDeckView() {
               onSwipe={() => {}}
               interactive={false}
               jokeRevealed={postCatchStage === 'revealed'}
-              onRevealJoke={
-                postCatchStage === 'reveal-pending' ? handleRevealJoke : undefined
-              }
+              onRevealJoke={postCatchStage === 'reveal-pending' ? handleRevealJoke : undefined}
             />
           </motion.div>
         )}
 
         <AnimatePresence>
-          {isShowingFledMessage && (
+          {showTransitionLoader && (
             <motion.div
-              key="fled"
-              className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
-              initial={{ opacity: 0, scale: 0.9 }}
+              key="pokeball-loader"
+              className="absolute inset-0 flex items-center justify-center"
+              initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.2 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.25 }}
             >
+              <PokeballLoader />
             </motion.div>
           )}
         </AnimatePresence>
@@ -387,7 +390,6 @@ function SwipeDeckView() {
           </button>
         </div>
       )}
-
     </section>
   );
 }
@@ -395,6 +397,78 @@ function SwipeDeckView() {
 function capitalize(name: string) {
   if (!name) return name;
   return name.charAt(0).toUpperCase() + name.slice(1);
+}
+
+function PokeballLoader() {
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <motion.svg
+        viewBox="0 0 96 96"
+        width="96"
+        height="96"
+        aria-hidden
+        animate={{ rotate: 360 }}
+        transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
+      >
+        <defs>
+          <radialGradient id="loader-top" cx="38%" cy="50%" r="65%">
+            <stop offset="0%" stopColor="#FCA5A5" />
+            <stop offset="50%" stopColor="#EF4444" />
+            <stop offset="100%" stopColor="#B91C1C" />
+          </radialGradient>
+          <radialGradient id="loader-bot" cx="38%" cy="40%" r="70%">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="50%" stopColor="#F1F5F9" />
+            <stop offset="100%" stopColor="#CBD5E1" />
+          </radialGradient>
+          <filter id="loader-shadow">
+            <feDropShadow dx="0" dy="3" stdDeviation="3" floodOpacity="0.2" />
+          </filter>
+        </defs>
+
+        <g filter="url(#loader-shadow)">
+          {/* Bottom half (white) */}
+          <path
+            d="M4 48a44 44 0 0088 0H60a12 12 0 11-24 0H4z"
+            fill="url(#loader-bot)"
+            stroke="#1E293B"
+            strokeWidth="3.5"
+          />
+          {/* Top half (red) */}
+          <path
+            d="M4 48a44 44 0 0188 0H60a12 12 0 10-24 0H4z"
+            fill="url(#loader-top)"
+            stroke="#1E293B"
+            strokeWidth="3.5"
+          />
+          {/* Seam lines */}
+          <line x1="4" y1="48" x2="36" y2="48" stroke="#1E293B" strokeWidth="3.5" />
+          <line x1="60" y1="48" x2="92" y2="48" stroke="#1E293B" strokeWidth="3.5" />
+          {/* Center button */}
+          <circle cx="48" cy="48" r="10" fill="#FFFFFF" stroke="#1E293B" strokeWidth="3.5" />
+          <circle cx="48" cy="48" r="4.5" fill="#1E293B" />
+          {/* Gloss highlight */}
+          <circle cx="46.5" cy="46" r="1.8" fill="rgba(255,255,255,0.9)" />
+          {/* Top shell gloss */}
+          <path
+            d="M22 28 C28 16, 40 12, 48 12"
+            stroke="rgba(255,255,255,0.5)"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+            fill="none"
+          />
+        </g>
+      </motion.svg>
+
+      <motion.p
+        className="pixel-text text-[10px] text-ink-muted"
+        animate={{ opacity: [0.4, 1, 0.4] }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        Finding a Pokémon…
+      </motion.p>
+    </div>
+  );
 }
 
 function CatchPokeballIcon() {
