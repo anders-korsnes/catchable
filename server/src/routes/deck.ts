@@ -2,13 +2,13 @@ import { Router } from 'express';
 import { prisma } from '../lib/prisma.js';
 import { asyncHandler } from '../middleware/error-handler.js';
 import { requireAuth } from '../middleware/require-auth.js';
-import {
-  decodeDifficulties,
-  decodeRegions,
-  decodeTypes,
-} from '../lib/preferences-store.js';
+import { decodeDifficulties, decodeRegions, decodeTypes } from '../lib/preferences-store.js';
 import { getDifficultyBucket } from '../lib/difficulty.js';
-import { getPokemonSummary, getRawPokemonData, listSpeciesInRegionByType } from '../services/pokeapi.js';
+import {
+  getPokemonSummary,
+  getRawPokemonData,
+  listSpeciesInRegionByType,
+} from '../services/pokeapi.js';
 import { getJokeForTypes } from '../services/chucknorris.js';
 import { nameFor } from '../lib/human-names.js';
 import { badRequest } from '../lib/errors.js';
@@ -40,10 +40,7 @@ deckRouter.get(
       prisma.pokemonChoice.findMany({
         where: {
           userId,
-          OR: [
-            { choice: 'like' },
-            { choice: 'fled', createdAt: { gt: cooldownStart } },
-          ],
+          OR: [{ choice: 'like' }, { choice: 'fled', createdAt: { gt: cooldownStart } }],
         },
         select: { pokemonId: true },
       }),
@@ -91,16 +88,6 @@ deckRouter.get(
       getPokemonSummary(next.id),
       getJokeForTypes(next.types),
     ]);
-
-    if (process.env.NODE_ENV === 'development') {
-      getRawPokemonData(next.id).then((raw) => {
-        if (raw) {
-          console.log(`\n[deck] Raw PokéAPI data for #${next.id} (${next.name}):`);
-          console.log(JSON.stringify(raw, null, 2));
-          console.log(`[deck] ─── end #${next.id} ───\n`);
-        }
-      }).catch(() => {});
-    }
 
     res.json({
       pokemon: {

@@ -26,15 +26,13 @@ function logResponse(path: string, json: unknown): void {
   if (loggedShapes.has(shape)) {
     const keys =
       typeof json === 'object' && json !== null
-        ? Object.keys(json as Record<string, unknown>).slice(0, 6).join(',')
+        ? Object.keys(json as Record<string, unknown>)
+            .slice(0, 6)
+            .join(',')
         : '';
-    console.log(`[chucknorris] ${path}  (keys: ${keys})`);
     return;
   }
   loggedShapes.add(shape);
-  console.log(`\n[chucknorris] ${path}  ◄ first response of shape ${shape}`);
-  console.log(JSON.stringify(json, null, 2));
-  console.log(`[chucknorris] ─── end ${shape} ───\n`);
 }
 
 async function fetchJson<T>(path: string, schema: z.ZodType<T>): Promise<T | null> {
@@ -83,7 +81,10 @@ export async function getJokeForTypes(pokemonTypes: string[]): Promise<Joke> {
   const category = pickCategoryForTypes(pokemonTypes, categories);
 
   if (category) {
-    const joke = await fetchJson(`/jokes/random?category=${encodeURIComponent(category)}`, jokeSchema);
+    const joke = await fetchJson(
+      `/jokes/random?category=${encodeURIComponent(category)}`,
+      jokeSchema,
+    );
     if (joke) return { id: joke.id, value: joke.value, category };
   }
 
